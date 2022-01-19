@@ -38,6 +38,7 @@ VERSION ?= $(eval VERSION := $(shell cat versions/VALD_VERSION))$(VERSION)
 
 NGT_VERSION := $(eval NGT_VERSION := $(shell cat versions/NGT_VERSION))$(NGT_VERSION)
 NGT_REPO = github.com/yahoojapan/NGT
+FAISS_VERSION := 0.0.0
 
 GOPROXY=direct
 GO_VERSION := $(eval GO_VERSION := $(shell cat versions/GO_VERSION))$(GO_VERSION)
@@ -482,6 +483,10 @@ ngt/install: /usr/local/include/NGT/Capi.h
 	rm -rf v$(NGT_VERSION).tar.gz
 	rm -rf $(TEMP_DIR)/NGT-$(NGT_VERSION)
 	ldconfig
+
+.PHONY: faiss/install
+## install Faiss
+faiss/install:
 
 .PHONY: lint
 ## run lints

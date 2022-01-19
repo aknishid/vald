@@ -60,6 +60,42 @@ cmd/agent/core/ngt/ngt: \
 		$(dir $@)main.go
 	$@ -version
 
+cmd/agent/core/faiss/faiss: \
+	faiss/install \
+	$(GO_SOURCES_INTERNAL) \
+	$(PBGOS) \
+	$(shell find ./cmd/agent/core/faiss -type f -name '*.go' -not -name '*_test.go' -not -name 'doc.go') \
+	$(shell find ./pkg/agent/core/faiss ./pkg/agent/core/ngt/service/kvs ./pkg/agent/core/ngt/service/vqueue ./pkg/agent/internal -type f -name '*.go' -not -name '*_test.go' -not -name 'doc.go')
+	CFLAGS="$(CFLAGS)" \
+	CXXFLAGS="$(CXXFLAGS)" \
+	CGO_ENABLED=1 \
+	CGO_CXXFLAGS="-g -Ofast -march=native" \
+	CGO_FFLAGS="-g -Ofast -march=native" \
+	CGO_LDFLAGS="-g -Ofast -march=native" \
+	GO111MODULE=on \
+	GOPRIVATE=$(GOPRIVATE) \
+	go build \
+		--ldflags "-w -linkmode 'external' \
+		-extldflags '-static -fPIC -pthread -fopenmp -std=gnu++20 -lstdc++ -lm -z relro -z now $(EXTLDFLAGS) -m64 -Wall -g -O3  -msse4 -mpopcnt -Wno-sign-compare -Dnullptr=NULL -Doverride= -DMKL_ILP64 -I/lib/x86_64-linux-gnu/include -Wl,--start-group /lib/x86_64-linux-gnu/libmkl_intel_ilp64.a /lib/x86_64-linux-gnu/libmkl_gnu_thread.a /lib/x86_64-linux-gnu/libmkl_core.a -Wl,--end-group -lgomp -ldl' \
+		-X '$(GOPKG)/internal/info.Version=$(VERSION)' \
+		-X '$(GOPKG)/internal/info.GitCommit=$(GIT_COMMIT)' \
+		-X '$(GOPKG)/internal/info.BuildTime=$(DATETIME)' \
+		-X '$(GOPKG)/internal/info.GoVersion=$(GO_VERSION)' \
+		-X '$(GOPKG)/internal/info.GoOS=$(GOOS)' \
+		-X '$(GOPKG)/internal/info.GoArch=$(GOARCH)' \
+		-X '$(GOPKG)/internal/info.CGOEnabled=$${CGO_ENABLED}' \
+		-X '$(GOPKG)/internal/info.FaissVersion=$(FAISS_VERSION)' \
+		-X '$(GOPKG)/internal/info.BuildCPUInfoFlags=$(CPU_INFO_FLAGS)' \
+		-buildid=" \
+		-mod=readonly \
+		-modcacherw \
+		-a \
+		-tags "cgo osusergo netgo static_build" \
+		-trimpath \
+		-o $@ \
+		$(dir $@)main.go
+	$@ -version
+
 cmd/agent/sidecar/sidecar: \
 	$(GO_SOURCES_INTERNAL) \
 	$(PBGOS) \
