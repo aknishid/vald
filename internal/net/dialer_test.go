@@ -19,12 +19,15 @@ package net
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -33,6 +36,7 @@ import (
 	"github.com/vdaas/vald/internal/cache"
 	"github.com/vdaas/vald/internal/cache/gache"
 	"github.com/vdaas/vald/internal/errors"
+	"github.com/vdaas/vald/internal/io"
 	"github.com/vdaas/vald/internal/net/control"
 	"github.com/vdaas/vald/internal/strings"
 	"github.com/vdaas/vald/internal/test/goleak"
@@ -1089,124 +1093,122 @@ func Test_dialer_cachedDialer(t *testing.T) {
 				},
 			}
 		}(),
-		// FIXME kevin should fix this test case
-		// func() test {
-		// 	srvNums := 20
-		// 	srvs := make([]*httptest.Server, 0, srvNums)
-		// 	hosts := make([]string, 0, srvNums)
-		// 	ports := make([]uint16, 0, srvNums)
-		//
-		// 	// create servers that will return the server number
-		// 	for i := 0; i < srvNums; i++ {
-		// 		content := fmt.Sprint(i)
-		// 		srvs = append(srvs, httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 			w.WriteHeader(200)
-		// 			fmt.Fprint(w, content)
-		// 		})))
-		// 		h, p, _ := SplitHostPort(strings.TrimPrefix(strings.TrimPrefix(srvs[i].URL, "https://"), "http://"))
-		// 		hosts = append(hosts, h)
-		// 		ports = append(ports, p)
-		// 	}
-		//
-		// 	addr := JoinHostPort(hosts[0], ports[0])
-		//
-		// 	c, err := cache.New()
-		// 	if err != nil {
-		// 		t.Error(err)
-		// 	}
-		// 	return test{
-		// 		name: "return cached ip connection in round robin order",
-		// 		args: args{
-		// 			ctx:     context.Background(),
-		// 			network: TCP.String(),
-		// 			addr:    addr,
-		// 		},
-		// 		opts: []DialerOption{
-		// 			WithDNSCache(c),
-		// 		},
-		// 		beforeFunc: func(a args) {
-		// 			c.Set(addr, &dialerCache{
-		// 				ips: hosts,
-		// 			})
-		// 		},
-		// 		checkFunc: func(d *dialer, w want, gotConn Conn, err error) error {
-		// 			c, ok := d.dnsCache.Get(addr)
-		// 			if !ok || c == nil {
-		// 				return errors.Errorf("dnsCache for %s is empty", addr)
-		// 			}
-		// 			dc, ok := c.(*dialerCache)
-		// 			if !ok || dc == nil {
-		// 				return errors.Errorf("dnsCache for %s is invalid", addr)
-		// 			}
-		//
-		// 			check := func(gotConn Conn, gotErr error, cnt int, port uint16, srvContent string) error {
-		// 				defer func() {
-		// 					if gotConn != nil {
-		// 						_ = gotConn.Close()
-		// 					}
-		// 				}()
-		//
-		// 				if gotErr != nil {
-		// 					return errors.Errorf("err is not nil: %v", gotErr)
-		// 				}
-		// 				if gotConn == nil {
-		// 					return errors.New("conn is nil")
-		// 				}
-		// 				if c := atomic.LoadUint32(&dc.cnt); c != uint32(cnt) {
-		// 					return errors.Errorf("cnt not correct, %d, except: %d", c, cnt)
-		// 				}
-		//
-		// 				// check the connection made is the same excepted
-		// 				_, p, _ := net.SplitHostPort(gotConn.RemoteAddr().String())
-		// 				if p != strconv.Itoa(int(port)) {
-		// 					return errors.Errorf("unexcepted port number, except: %d, got: %s", port, p)
-		// 				}
-		//
-		// 				// read the output from the server and check if it is equals to the count
-		// 				fmt.Fprintf(gotConn, "GET / HTTP/1.0\r\n\r\n")
-		// 				buf, _ := io.ReadAll(gotConn)
-		// 				content := strings.Split(string(buf), "\n")[5] // skip HTTP header
-		// 				if content != srvContent {
-		// 					return errors.Errorf("excepted output from server, got: %v, want: %v", content, fmt.Sprint(cnt))
-		// 				}
-		//
-		// 				return nil
-		// 			}
-		//
-		// 			// check the return of the returned connection
-		// 			if err := check(gotConn, err, 1, ports[0], "0"); err != nil {
-		// 				return err
-		// 			}
-		//
-		// 			// check all the connection
-		// 			for i := 1; i < srvNums; i++ {
-		// 				c, e := d.cachedDialer(context.Background(), TCP.String(), net.JoinHostPort(addr, strconv.Itoa(int(ports[i]))))
-		// 				srvContent := fmt.Sprint(i)
-		// 				if err := check(c, e, i+1, ports[i], srvContent); err != nil {
-		// 					return err
-		// 				}
-		// 			}
-		//
-		// 			// check all the connections again and it should start with index 0,
-		// 			// and the count should not be reset
-		// 			for i := 0; i < srvNums; i++ {
-		// 				c, e := d.cachedDialer(context.Background(), TCP.String(), net.JoinHostPort(addr, strconv.Itoa(int(ports[i]))))
-		// 				cnt := srvNums + i + 1
-		// 				srvContent := fmt.Sprint(i)
-		// 				if err := check(c, e, cnt, ports[i], srvContent); err != nil {
-		// 					return err
-		// 				}
-		// 			}
-		//
-		// 			return nil
-		// 		},
-		// 		afterFunc: func(args) {
-		// 			for _, srv := range srvs {
-		// 				srv.Close()
-		// 			}
-		// 		},
-		// 	}
-		// }(),
+		func() test {
+			srvNums := 20
+			srvs := make([]*httptest.Server, srvNums)
+			hosts := make([]string, srvNums)
+			ports := make([]uint16, srvNums)
+
+			// create servers that will return the server number
+			for i := 0; i < srvNums; i++ {
+				content := fmt.Sprint(i)
+				srvs[i] = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+					fmt.Fprint(w, content)
+				}))
+				hosts[i], ports[i], _ = SplitHostPort(strings.TrimPrefix(strings.TrimPrefix(srvs[i].URL, "https://"), "http://"))
+			}
+
+			addr := JoinHostPort(hosts[0], ports[0])
+
+			c, err := cache.New()
+			if err != nil {
+				t.Error(err)
+			}
+			return test{
+				name: "return cached ip connection in round robin order",
+				args: args{
+					ctx:     context.Background(),
+					network: TCP.String(),
+					addr:    addr,
+				},
+				opts: []DialerOption{
+					WithDNSCache(c),
+					WithEnableDNSCache(),
+				},
+				beforeFunc: func(a args) {
+					c.Set(addr, &dialerCache{
+						ips: hosts,
+					})
+				},
+				checkFunc: func(d *dialer, w want, gotConn Conn, err error) error {
+					c, ok := d.dnsCache.Get(addr)
+					if !ok || c == nil {
+						return errors.Errorf("dnsCache for %s is empty", addr)
+					}
+					dc, ok := c.(*dialerCache)
+					if !ok || dc == nil {
+						return errors.Errorf("dnsCache for %s is invalid", addr)
+					}
+
+					check := func(gotConn Conn, gotErr error, cnt int, port uint16, srvContent string) error {
+						defer func() {
+							if gotConn != nil {
+								_ = gotConn.Close()
+							}
+						}()
+
+						if gotErr != nil {
+							return errors.Errorf("err is not nil: %v", gotErr)
+						}
+						if gotConn == nil {
+							return errors.New("conn is nil")
+						}
+						if c := atomic.LoadUint32(&dc.cnt); c != uint32(cnt) {
+							return errors.Errorf("cnt not correct, got: %d, except: %d", c, cnt)
+						}
+
+						// check the connection made is the same excepted
+						_, p, _ := net.SplitHostPort(gotConn.RemoteAddr().String())
+						if p != strconv.Itoa(int(port)) {
+							return errors.Errorf("unexcepted port number, except: %d, got: %s", port, p)
+						}
+
+						// read the output from the server and check if it is equals to the count
+						fmt.Fprintf(gotConn, "GET / HTTP/1.0\r\n\r\n")
+						buf, _ := io.ReadAll(gotConn)
+						content := strings.Split(string(buf), "\n")[5] // skip HTTP header
+						if content != srvContent {
+							return errors.Errorf("excepted output from server, got: %v, want: %v", content, fmt.Sprint(cnt))
+						}
+
+						return nil
+					}
+
+					// check the return of the returned connection
+					if err := check(gotConn, err, 0, ports[0], "0"); err != nil {
+						return errors.Errorf("check return connection, err: %v", err)
+					}
+
+					// check all the connection
+					for i := 1; i < srvNums; i++ {
+						c, e := d.cachedDialer(context.Background(), TCP.String(), net.JoinHostPort(addr, strconv.Itoa(int(ports[i]))))
+						srvContent := fmt.Sprint(i)
+						if err := check(c, e, i, ports[i], srvContent); err != nil {
+							return err
+						}
+					}
+
+					// check all the connections again and it should start with index 0,
+					// and the count should not be reset
+					for i := 0; i < srvNums; i++ {
+						c, e := d.cachedDialer(context.Background(), TCP.String(), net.JoinHostPort(addr, strconv.Itoa(int(ports[i]))))
+						cnt := srvNums + i
+						srvContent := fmt.Sprint(i)
+						if err := check(c, e, cnt, ports[i], srvContent); err != nil {
+							return err
+						}
+					}
+
+					return nil
+				},
+				afterFunc: func(args) {
+					for _, srv := range srvs {
+						srv.Close()
+					}
+				},
+			}
+		}(),
 		func() test {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
