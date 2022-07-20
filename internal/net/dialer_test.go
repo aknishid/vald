@@ -1625,7 +1625,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 				},
 				checkFunc: func(w want, c *tls.Conn, err error) error {
 					if c == nil || !c.ConnectionState().HandshakeComplete {
-						return errors.Errorf("Handshake to %s(%s) not completed, got: %v\twant %v\terr: %v", srv.URL, addr, c, w.want, err)
+						return errors.Errorf("Handshake to %s(%s) not completed, got: %+v\terr: %v", srv.URL, addr, c, err)
 					}
 					return nil
 				},
@@ -1655,7 +1655,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 					network: TCP.String(),
 				},
 				opts: []DialerOption{
-					WithDialerTimeout("1ms"),
+					WithDialerTimeout("50ms"),
 					WithTLS(func() *tls.Config {
 						c, err := tls.NewClientConfig(tls.WithInsecureSkipVerify(true))
 						if err != nil {
@@ -1664,11 +1664,12 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 						return c
 					}()),
 				},
-				checkFunc: func(w want, c *tls.Conn, err error) error {
-					if err == nil {
-						return errors.New("timeout error should be returned")
-					}
-					return nil
+				beforeFunc: func(a args) {
+					// force connection to timeout
+					time.Sleep(100 * time.Millisecond)
+				},
+				want: want{
+					err: context.DeadlineExceeded,
 				},
 				afterFunc: func(a args) {
 					srv.Close()
@@ -1726,9 +1727,6 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
-			if test.beforeFunc != nil {
-				test.beforeFunc(test.args)
-			}
 			if test.afterFunc != nil {
 				defer test.afterFunc(test.args)
 			}
@@ -1740,7 +1738,12 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 			if err != nil {
 				tt.Errorf("failed to initialize dialer: %v", err)
 			}
-			conn, err := der.DialContext(test.args.ctx, TCP.String(), test.args.addr)
+			d, ok := der.(*dialer)
+			if !ok || d == nil {
+				tt.Errorf("NewDialer return value Dialer is not *dialer: %v", der)
+			}
+
+			conn, err := d.der.DialContext(test.args.ctx, TCP.String(), test.args.addr)
 			if err != nil || conn == nil {
 				if test.args.failedConn {
 					return
@@ -1750,10 +1753,11 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 			if conn != nil {
 				defer conn.Close()
 			}
-			d, ok := der.(*dialer)
-			if !ok || d == nil {
-				tt.Errorf("NewDialer return value Dialer is not *dialer: %v", der)
+
+			if test.beforeFunc != nil {
+				test.beforeFunc(test.args)
 			}
+
 			got, err := d.tlsHandshake(test.args.ctx, conn, test.args.network, test.args.addr)
 			if err := checkFunc(test.want, got, err); err != nil {
 				tt.Errorf("error = %v", err)
