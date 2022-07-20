@@ -592,7 +592,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 	}
 	tests := []test{
 		func() test {
-			addr := "google.com"
+			addr := "localhost"
 			ctx, cancel := context.WithCancel(context.Background())
 			return test{
 				name: "cache refresh when it is expired",
@@ -601,7 +601,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 				},
 				opts: []DialerOption{
 					WithEnableDNSCache(),
-					WithDNSRefreshDuration("100ms"),
+					WithDNSRefreshDuration("20ms"),
 					WithDNSCacheExpiration("100ms"),
 					WithDisableDialerDualStack(),
 					WithDialerTimeout("1m"),
@@ -622,7 +622,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 						return errors.New("cache is not correct")
 					}
 					// sleep and wait the cache update
-					time.Sleep(150 * time.Millisecond)
+					time.Sleep(500 * time.Millisecond)
 
 					// get again and check if the cache is updated
 					val, ok = d.dnsCache.Get(addr)
