@@ -594,6 +594,8 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 		func() test {
 			addr := "localhost"
 			ctx, cancel := context.WithCancel(context.Background())
+			ips := []string{}
+
 			return test{
 				name: "cache refresh when it is expired",
 				args: args{
@@ -609,30 +611,41 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 				},
 				beforeFunc: func(d *dialer) {
 					d.dnsCache.Set(addr, &dialerCache{
-						ips: []string{addr},
+						ips: ips,
 					})
 				},
 				checkFunc: func(d *dialer) error {
-					// ensure the cache exists
-					val, ok := d.dnsCache.Get(addr)
-					if !ok {
-						return errors.New("invalid cache not found")
+					validateFn := func(ipLen int) error {
+						val, ok := d.dnsCache.Get(addr)
+						if !ok {
+							return errors.New("cache not found")
+						}
+						if val == nil || len(val.(*dialerCache).ips) != ipLen {
+							return errors.Errorf("cache is not correct, gotLen: %v, want: %v", val, ipLen)
+						}
+						return nil
 					}
-					if val == nil || len(val.(*dialerCache).ips) == 0 {
-						return errors.New("cache is not correct")
-					}
-					// sleep and wait the cache update
-					time.Sleep(500 * time.Millisecond)
 
-					// get again and check if the cache is updated
-					val, ok = d.dnsCache.Get(addr)
-					if !ok {
-						return errors.New("cache not found")
+					// ensure the cache exists
+					if err := validateFn(0); err != nil {
+						return errors.Errorf("invalid cache err: %e", err)
 					}
-					if val == nil || len(val.(*dialerCache).ips) == 0 {
-						return errors.New("cache is not updated")
+
+					// check cache update until timeout
+					timeout := time.After(time.Second)
+					ticker := time.Tick(20 * time.Millisecond)
+					for {
+						select {
+						case <-timeout:
+							if err := validateFn(2); err != nil {
+								return errors.Errorf("cache is not updated, err: %v", err)
+							}
+						case <-ticker:
+							if err := validateFn(2); err == nil {
+								return nil
+							}
+						}
 					}
-					return nil
 				},
 				afterFunc: func(args) {
 					cancel()
