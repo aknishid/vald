@@ -360,11 +360,9 @@ func Test_server_GetObject(t *testing.T) {
 		id *payload.Object_VectorRequest
 	}
 	type fields struct {
-		name              string
-		ip                string
-		streamConcurrency int
-		svcCfg            *config.NGT
-		svcOpts           []service.Option
+		srvOpts []Option
+		svcCfg  *config.NGT
+		svcOpts []service.Option
 	}
 	type want struct {
 		wantRes *payload.Object_Vector
@@ -376,7 +374,7 @@ func Test_server_GetObject(t *testing.T) {
 		fields     fields
 		want       want
 		checkFunc  func(want, *payload.Object_Vector, error) error
-		beforeFunc func(*testing.T, args, *server)
+		beforeFunc func(*testing.T, context.Context, args, Server)
 		afterFunc  func(args)
 	}
 
@@ -418,9 +416,7 @@ func Test_server_GetObject(t *testing.T) {
 		t.Error(err)
 	}
 
-	insertAndCreateIndex := func(t *testing.T, s *server, req *payload.Insert_MultiRequest) {
-		ctx := context.Background()
-
+	insertAndCreateIndex := func(t *testing.T, ctx context.Context, s Server, req *payload.Insert_MultiRequest) {
 		if _, err := s.MultiInsert(ctx, req); err != nil {
 			t.Fatal(err)
 		}
@@ -489,8 +485,10 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name: name,
-					ip:   ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg: &config.NGT{
 						Dimension:    dim,
 						DistanceType: ngt.Angle.String(),
@@ -500,8 +498,8 @@ func Test_server_GetObject(t *testing.T) {
 					},
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -528,13 +526,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -560,13 +560,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -591,13 +593,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -625,13 +629,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -659,13 +665,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -693,13 +701,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -727,13 +737,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -761,13 +773,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -795,13 +809,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -829,13 +845,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.NotFound,
@@ -860,13 +878,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.NotFound,
@@ -891,13 +911,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.NotFound,
@@ -922,13 +944,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -956,13 +980,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.NotFound,
@@ -987,13 +1013,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.NotFound,
@@ -1018,13 +1046,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					errCode: codes.NotFound,
@@ -1049,13 +1079,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -1083,13 +1115,15 @@ func Test_server_GetObject(t *testing.T) {
 					},
 				},
 				fields: fields{
-					name:    name,
-					ip:      ip,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
 					svcCfg:  defaultSvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					insertAndCreateIndex(t, s, ir)
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
+					insertAndCreateIndex(t, ctx, s, ir)
 				},
 				want: want{
 					wantRes: &payload.Object_Vector{
@@ -1124,15 +1158,13 @@ func Test_server_GetObject(t *testing.T) {
 				tt.Errorf("failed to init ngt service, error = %v", err)
 			}
 
-			s := &server{
-				name:              test.fields.name,
-				ip:                test.fields.ip,
-				ngt:               ngt,
-				eg:                eg,
-				streamConcurrency: test.fields.streamConcurrency,
+			s, err := New(append(test.fields.srvOpts, WithNGT(ngt), WithErrGroup(eg))...)
+			if err != nil {
+				t.Errorf("failed to init service, err: %v", err)
 			}
+
 			if test.beforeFunc != nil {
-				test.beforeFunc(tt, test.args, s)
+				test.beforeFunc(tt, ctx, test.args, s)
 			}
 
 			gotRes, err := s.GetObject(ctx, test.args.id)
