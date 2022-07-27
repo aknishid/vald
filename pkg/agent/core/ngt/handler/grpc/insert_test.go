@@ -1415,11 +1415,9 @@ func Test_server_StreamInsert(t *testing.T) {
 		insertReqs []*payload.Insert_Request
 	}
 	type fields struct {
-		name              string
-		ip                string
-		streamConcurrency int
-		ngtCfg            *config.NGT
-		ngtOpts           []service.Option
+		srvOpts []Option
+		ngtCfg  *config.NGT
+		ngtOpts []service.Option
 	}
 	type want struct {
 		errCode codes.Code
@@ -1431,17 +1429,16 @@ func Test_server_StreamInsert(t *testing.T) {
 		fields     fields
 		want       want
 		checkFunc  func(want, []*payload.Object_StreamLocation, error) error
-		beforeFunc func(*testing.T, args, *server)
+		beforeFunc func(*testing.T, context.Context, args, Server)
 		afterFunc  func(args)
 	}
 
 	const (
-		name              = "vald-agent-ngt-1" // agent name
-		intVecDim         = 3                  // int vector dimension
-		f32VecDim         = 3                  // float32 vector dimension
-		streamConcurrency = 10                 // default stream concurrency
-		maxVecDim         = 1 << 18            // reference value for testing, this value is temporary
-		uuid              = "uuid-1"           // default uuid
+		name      = "vald-agent-ngt-1" // agent name
+		intVecDim = 3                  // int vector dimension
+		f32VecDim = 3                  // float32 vector dimension
+		maxVecDim = 1 << 18            // reference value for testing, this value is temporary
+		uuid      = "uuid-1"           // default uuid
 	)
 
 	var (
@@ -1606,10 +1603,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -1629,10 +1627,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -1646,10 +1645,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: nil,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: []*payload.Object_StreamLocation{},
@@ -1670,10 +1670,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -1701,10 +1702,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -1740,10 +1742,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -1773,10 +1776,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -1805,10 +1809,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultIntSvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultIntSvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -1831,10 +1836,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultIntSvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultIntSvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(1, name, ip),
@@ -1857,10 +1863,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(1, name, ip),
@@ -1883,10 +1890,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultIntSvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultIntSvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(1, name, ip),
@@ -1909,10 +1917,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(1, name, ip),
@@ -1935,10 +1944,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultIntSvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultIntSvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(1, name, ip),
@@ -1961,10 +1971,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(1, name, ip),
@@ -1985,10 +1996,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -2009,10 +2021,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -2033,10 +2046,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -2057,10 +2071,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -2081,10 +2096,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -2110,10 +2126,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -2139,10 +2156,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -2168,10 +2186,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -2197,10 +2216,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.InvalidArgument,
@@ -2226,10 +2246,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.AlreadyExists,
@@ -2255,10 +2276,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.AlreadyExists,
@@ -2284,10 +2306,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -2308,10 +2331,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					rpcResp: request.GenObjectStreamLocation(insertCnt, name, ip),
@@ -2333,10 +2357,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.AlreadyExists,
@@ -2363,10 +2388,11 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
 				want: want{
 					errCode: codes.AlreadyExists,
@@ -2391,13 +2417,13 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					ctx := context.Background()
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
 					iv, err := vector.GenF32Vec(vector.Gaussian, 1, f32VecDim)
 					if err != nil {
 						t.Fatal(err)
@@ -2440,13 +2466,13 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					ctx := context.Background()
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
 					iv, err := vector.GenF32Vec(vector.Gaussian, 1, f32VecDim)
 					if err != nil {
 						t.Fatal(err)
@@ -2489,14 +2515,13 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					ctx := context.Background()
-
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
 					ir := &payload.Insert_Request{
 						Vector: &payload.Object_Vector{
 							Id:     "non-exists-id",
@@ -2530,14 +2555,13 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					ctx := context.Background()
-
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
 					ir := &payload.Insert_Request{
 						Vector: &payload.Object_Vector{
 							Id:     "non-exists-id",
@@ -2571,14 +2595,13 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					ctx := context.Background()
-
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
 					ir := &payload.Insert_Request{
 						Vector: &payload.Object_Vector{
 							Id:     reqs.Requests[0].Vector.Id,
@@ -2617,14 +2640,13 @@ func Test_server_StreamInsert(t *testing.T) {
 					insertReqs: reqs.Requests,
 				},
 				fields: fields{
-					name:              name,
-					ip:                ip,
-					streamConcurrency: streamConcurrency,
-					ngtCfg:            defaultF32SvcCfg,
+					srvOpts: []Option{
+						WithName(name),
+						WithIP(ip),
+					},
+					ngtCfg: defaultF32SvcCfg,
 				},
-				beforeFunc: func(t *testing.T, a args, s *server) {
-					ctx := context.Background()
-
+				beforeFunc: func(t *testing.T, ctx context.Context, a args, s Server) {
 					ir := &payload.Insert_Request{
 						Vector: &payload.Object_Vector{
 							Id:     reqs.Requests[0].Vector.Id,
@@ -2698,16 +2720,13 @@ func Test_server_StreamInsert(t *testing.T) {
 				},
 			}
 
-			s := &server{
-				name:              test.fields.name,
-				ip:                test.fields.ip,
-				ngt:               ngt,
-				eg:                eg,
-				streamConcurrency: test.fields.streamConcurrency,
+			s, err := New(append(test.fields.srvOpts, WithNGT(ngt), WithErrGroup(eg))...)
+			if err != nil {
+				t.Errorf("failed to init service, err: %v", err)
 			}
 
 			if test.beforeFunc != nil {
-				test.beforeFunc(tt, test.args, s)
+				test.beforeFunc(tt, ctx, test.args, s)
 			}
 			if test.afterFunc != nil {
 				defer test.afterFunc(test.args)

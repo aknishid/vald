@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/vdaas/vald/internal/backoff"
+	"github.com/vdaas/vald/internal/circuitbreaker"
 	"github.com/vdaas/vald/internal/errgroup"
 	"github.com/vdaas/vald/internal/errors"
 	"github.com/vdaas/vald/internal/net"
@@ -2498,6 +2499,7 @@ func Test_gRPCClient_GetBackoff(t *testing.T) {
 		roccd               string
 		eg                  errgroup.Group
 		bo                  backoff.Backoff
+		cb                  circuitbreaker.CircuitBreaker
 		gbo                 gbackoff.Config
 		mcd                 time.Duration
 		group               singleflight.Group
@@ -2526,70 +2528,72 @@ func Test_gRPCClient_GetBackoff(t *testing.T) {
 	tests := []test{
 		// TODO test cases
 		/*
-		   {
-		       name: "test_case_1",
-		       fields: fields {
-		           addrs: nil,
-		           atomicAddrs: nil,
-		           poolSize: 0,
-		           clientCount: 0,
-		           conns: grpcConns{},
-		           hcDur: nil,
-		           prDur: nil,
-		           dialer: nil,
-		           enablePoolRebalance: false,
-		           resolveDNS: false,
-		           dopts: nil,
-		           copts: nil,
-		           roccd: "",
-		           eg: nil,
-		           bo: nil,
-		           gbo: nil,
-		           mcd: nil,
-		           group: nil,
-		           crl: sync.Map{},
-		           ech: nil,
-		           monitorRunning: nil,
-		           stopMonitor: nil,
-		       },
-		       want: want{},
-		       checkFunc: defaultCheckFunc,
-		   },
+			   {
+			       name: "test_case_1",
+			       fields: fields {
+			           addrs: nil,
+			           atomicAddrs: nil,
+			           poolSize: 0,
+			           clientCount: 0,
+			           conns: grpcConns{},
+			           hcDur: nil,
+			           prDur: nil,
+			           dialer: nil,
+			           enablePoolRebalance: false,
+			           resolveDNS: false,
+			           dopts: nil,
+			           copts: nil,
+			           roccd: "",
+			           eg: nil,
+			           bo: nil,
+					   cb: nil,
+			           gbo: nil,
+			           mcd: nil,
+			           group: nil,
+			           crl: sync.Map{},
+			           ech: nil,
+			           monitorRunning: nil,
+			           stopMonitor: nil,
+			       },
+			       want: want{},
+			       checkFunc: defaultCheckFunc,
+			   },
 		*/
 
 		// TODO test cases
 		/*
-		   func() test {
-		       return test {
-		           name: "test_case_2",
-		           fields: fields {
-		           addrs: nil,
-		           atomicAddrs: nil,
-		           poolSize: 0,
-		           clientCount: 0,
-		           conns: grpcConns{},
-		           hcDur: nil,
-		           prDur: nil,
-		           dialer: nil,
-		           enablePoolRebalance: false,
-		           resolveDNS: false,
-		           dopts: nil,
-		           copts: nil,
-		           roccd: "",
-		           eg: nil,
-		           bo: nil,
-		           gbo: nil,
-		           mcd: nil,
-		           group: nil,
-		           crl: sync.Map{},
-		           ech: nil,
-		           monitorRunning: nil,
-		           stopMonitor: nil,
-		           },
-		           want: want{},
-		           checkFunc: defaultCheckFunc,
-		       }
-		   }(),
+			   func() test {
+			       return test {
+			           name: "test_case_2",
+			           fields: fields {
+			           addrs: nil,
+			           atomicAddrs: nil,
+			           poolSize: 0,
+			           clientCount: 0,
+			           conns: grpcConns{},
+			           hcDur: nil,
+			           prDur: nil,
+			           dialer: nil,
+			           enablePoolRebalance: false,
+			           resolveDNS: false,
+			           dopts: nil,
+			           copts: nil,
+			           roccd: "",
+			           eg: nil,
+			           bo: nil,
+					   cb: nil,
+			           gbo: nil,
+			           mcd: nil,
+			           group: nil,
+			           crl: sync.Map{},
+			           ech: nil,
+			           monitorRunning: nil,
+			           stopMonitor: nil,
+			           },
+			           want: want{},
+			           checkFunc: defaultCheckFunc,
+			       }
+			   }(),
 		*/
 	}
 
@@ -2624,6 +2628,7 @@ func Test_gRPCClient_GetBackoff(t *testing.T) {
 				roccd:               test.fields.roccd,
 				eg:                  test.fields.eg,
 				bo:                  test.fields.bo,
+				cb:                  test.fields.cb,
 				gbo:                 test.fields.gbo,
 				mcd:                 test.fields.mcd,
 				group:               test.fields.group,
