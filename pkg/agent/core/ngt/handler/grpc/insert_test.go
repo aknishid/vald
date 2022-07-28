@@ -46,7 +46,6 @@ func Test_server_Insert(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		ctx context.Context
 		req *payload.Insert_Request
 	}
 	type fields struct {
@@ -95,9 +94,6 @@ func Test_server_Insert(t *testing.T) {
 		kvsdbCfg  = &config.KVSDB{}
 		vqueueCfg = &config.VQueue{}
 	)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	/*
 		- Equivalence Class Testing
@@ -156,7 +152,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 1.1: Insert vector success (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -193,7 +188,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 1.2: Insert vector success (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -235,7 +229,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 2.1: Insert vector with different dimension (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -293,7 +286,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 2.2: Insert vector with different dimension (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -351,7 +343,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.1: Insert gaussian distributed vector success (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -393,7 +384,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.2: Insert gaussian distributed vector success (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -435,7 +425,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 4.1: Insert uniform distributed vector success (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -477,7 +466,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 4.2: Insert uniform distributed vector success (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -516,7 +504,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 1.1: Insert vector with 0 value success (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -553,7 +540,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 1.2: Insert vector with 0 value success (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -590,7 +576,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 2.1: Insert vector with min value success (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -627,7 +612,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 2.2: Insert vector with min value success (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -664,7 +648,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 3.1: Insert vector with max value success (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -701,7 +684,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 3.2: Insert vector with max value success (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -738,7 +720,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.1: Insert with empty UUID fail (vector type is uint8)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -791,7 +772,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.2: Insert with empty UUID fail (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -844,7 +824,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.2: Insert with empty UUID fail (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -898,7 +877,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5: Insert vector with NaN value fail (vector type is float32)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -928,7 +906,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 6: Insert nil insert request fail",
 				args: args{
-					ctx: ctx,
 					req: nil,
 				},
 				fields: fields{
@@ -982,7 +959,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 7: Insert nil vector fail",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1036,7 +1012,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 8: Insert empty insert vector fail",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1100,7 +1075,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.1: Insert duplicated request fail when SkipStrictExistCheck is false (duplicated ID)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1149,7 +1123,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.2: Insert duplicated request success when SkipStrictExistCheck is false (duplicated vector)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1192,7 +1165,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.3: Insert duplicated request fail when SkipStrictExistCheck is false (duplicated ID & vector)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1244,7 +1216,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.1: Insert duplicated request fail when SkipStrictExistCheck is true (duplicated ID)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1293,7 +1264,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.2: Insert duplicated request success when SkipStrictExistCheck is true (duplicated vector)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1336,7 +1306,6 @@ func Test_server_Insert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.3: Insert duplicated request fail when SkipStrictExistCheck is true (duplicated ID & vector)",
 				args: args{
-					ctx: ctx,
 					req: req,
 				},
 				fields: fields{
@@ -1376,6 +1345,10 @@ func Test_server_Insert(t *testing.T) {
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
 			if test.afterFunc != nil {
 				defer test.afterFunc(test.args)
 			}
@@ -1401,7 +1374,7 @@ func Test_server_Insert(t *testing.T) {
 				test.beforeFunc(s)
 			}
 
-			gotRes, err := s.Insert(test.args.ctx, test.args.req)
+			gotRes, err := s.Insert(ctx, test.args.req)
 			if err := checkFunc(test.want, gotRes, err); err != nil {
 				tt.Errorf("error = %v", err)
 			}
@@ -2748,7 +2721,6 @@ func Test_server_MultiInsert(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		ctx  context.Context
 		reqs *payload.Insert_MultiRequest
 	}
 	type fields struct {
@@ -2769,12 +2741,9 @@ func Test_server_MultiInsert(t *testing.T) {
 		fields     fields
 		want       want
 		checkFunc  func(want, *payload.Object_Locations, error) error
-		beforeFunc func(*testing.T, *server)
+		beforeFunc func(*testing.T, context.Context, *server)
 		afterFunc  func(args)
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	// common variables for test
 	const (
@@ -2945,7 +2914,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 1.1: Success to MultiInsert 1 vector (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -2970,7 +2938,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 1.2: Success to MultiInsert 1 vector (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -2995,7 +2962,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 1.3: Success to MultiInsert 100 vector (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3020,7 +2986,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 1.4: Success to MultiInsert 100 vector (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3038,7 +3003,6 @@ func Test_server_MultiInsert(t *testing.T) {
 		{
 			name: "Equivalence Class Testing case 1.5: Success to MultiInsert 0 vector (vector type is uint8)",
 			args: args{
-				ctx: ctx,
 				reqs: &payload.Insert_MultiRequest{
 					Requests: []*payload.Insert_Request{},
 				},
@@ -3057,7 +3021,6 @@ func Test_server_MultiInsert(t *testing.T) {
 		{
 			name: "Equivalence Class Testing case 1.6: Success to MultiInsert 0 vector (vector type is float32)",
 			args: args{
-				ctx: ctx,
 				reqs: &payload.Insert_MultiRequest{
 					Requests: []*payload.Insert_Request{},
 				},
@@ -3083,7 +3046,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 2.1: Fail to MultiInsert 1 vector with different dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3128,7 +3090,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 2.2: Fail to MultiInsert 1 vector with different dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3179,7 +3140,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.1: Fail to MultiInsert 100 vector with 1 vector with different dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3230,7 +3190,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.2: Fail to MultiInsert 100 vector with 1 vector with different dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3285,7 +3244,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.3: Fail to MultiInsert 100 vector with 50 vector with different dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3339,7 +3297,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.4: Fail to MultiInsert 100 vector with 50 vector with different dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3384,7 +3341,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.5: Fail to MultiInsert 100 vector with all vector with different dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3429,7 +3385,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Equivalence Class Testing case 3.6: Fail to MultiInsert 100 vector with all vector with different dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3469,7 +3424,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 1.1: Success to MultiInsert with 0 value vector (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(intVecDim, 0), nil),
 				},
 				fields: fields{
@@ -3489,7 +3443,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 1.2: Success to MultiInsert with 0 value vector (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, 0), nil),
 				},
 				fields: fields{
@@ -3509,7 +3462,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 2.1: Success to MultiInsert with min value vector (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(intVecDim, math.MinInt), nil),
 				},
 				fields: fields{
@@ -3529,7 +3481,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 2.2: Success to MultiInsert with min value vector (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, -math.MaxFloat32), nil),
 				},
 				fields: fields{
@@ -3549,7 +3500,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 3.1: Success to MultiInsert with max value vector (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(intVecDim, math.MaxUint8), nil),
 				},
 				fields: fields{
@@ -3569,7 +3519,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 3.2: Success to MultiInsert with max value vector (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, math.MaxFloat32), nil),
 				},
 				fields: fields{
@@ -3600,7 +3549,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.1: Fail to MultiInsert with 1 request with empty UUID (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3647,7 +3595,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.2: Fail to MultiInsert with 1 request with empty UUID (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3696,7 +3643,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.3: Fail to MultiInsert with 50 request with empty UUID (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3745,7 +3691,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.4: Fail to MultiInsert with 50 request with empty UUID (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3794,7 +3739,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.5: Fail to MultiInsert with all request with empty UUID (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3843,7 +3787,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 4.6: Fail to MultiInsert with all request with empty UUID (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3885,7 +3828,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5.1: Fail to MultiInsert with 1 vector with maximum dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3932,7 +3874,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5.1: Fail to MultiInsert with 1 vector with maximum dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -3981,7 +3922,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5.3: Fail to MultiInsert with 50 vector with maximum dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4030,7 +3970,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5.4: Fail to MultiInsert with 50 vector with maximum dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4073,7 +4012,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5.5: Fail to MultiInsert with all vector with maximum dimension (vector type is uint8)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4116,7 +4054,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 5.6: Fail to MultiInsert with all vector with maximum dimension (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4157,7 +4094,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 6.1: Success to MultiInsert with NaN value (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, float32(math.NaN())), nil),
 				},
 				fields: fields{
@@ -4177,7 +4113,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 6.2: Success to MultiInsert with +Inf value (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, float32(math.Inf(+1.0))), nil),
 				},
 				fields: fields{
@@ -4197,7 +4132,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 6.3: Success to MultiInsert with -Inf value (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, float32(math.Inf(-1.0))), nil),
 				},
 				fields: fields{
@@ -4217,7 +4151,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 6.4: Success to MultiInsert with -0 value (vector type is float32)",
 				args: args{
-					ctx:  ctx,
 					reqs: request.GenSameVecMultiInsertReq(insertNum, vector.GenSameValueVec(f32VecDim, float32(math.Copysign(0, -1.0))), nil),
 				},
 				fields: fields{
@@ -4244,7 +4177,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 7.1: Fail to MultiInsert with 1 vector with nil insert request",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4293,7 +4225,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 7.2: Fail to MultiInsert with 50 vector with nil insert request",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4342,7 +4273,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 7.3: Fail to MultiInsert with all vector with nil insert request",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4389,7 +4319,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 8.1: Fail to MultiInsert with 1 vector with nil vector",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4438,7 +4367,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 8.2: Fail to MultiInsert with 50 vector with nil vector",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4487,7 +4415,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 8.3: Fail to MultiInsert with all vector with nil vector",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4534,7 +4461,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 9.1: Fail to MultiInsert with 1 vector with empty insert vector",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4583,7 +4509,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 9.2: Fail to MultiInsert with 50 vector with empty insert vector",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4632,7 +4557,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Boundary Value Testing case 9.3: Fail to MultiInsert with all vector with empty insert vector",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4686,7 +4610,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.1: Success to MultiInsert with 2 duplicated ID when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4723,7 +4646,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.2: Success to MultiInsert with all duplicated ID when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4757,7 +4679,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.3: Success to MultiInsert with 2 duplicated ID when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4794,7 +4715,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 1.4: Success to MultiInsert with all duplicated ID when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4823,7 +4743,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.1: Success to MultiInsert with 2 duplicated vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4854,7 +4773,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.2: Success to MultiInsert with all duplicated vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4883,7 +4801,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.3: Success to MultiInsert with 2 duplicated vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4914,7 +4831,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 2.4: Success to MultiInsert with all duplicated vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4947,7 +4863,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 3.1: Success to MultiInsert with 2 duplicated ID & vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -4985,7 +4900,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 3.2: Success to MultiInsert with all duplicated ID & vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5019,7 +4933,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 3.3: Success to MultiInsert with 2 duplicated ID & vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5057,7 +4970,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 3.4: Success to MultiInsert with all duplicated ID & vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5081,7 +4993,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 4.1: Fail to MultiInsert with 2 existed ID when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5090,7 +5001,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					vecs, err := vector.GenF32Vec(vector.Gaussian, 2, f32VecDim)
 					if err != nil {
 						t.Error(err)
@@ -5139,7 +5050,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 4.2: Fail to MultiInsert with all existed ID when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5148,7 +5058,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					vecs, err := vector.GenF32Vec(vector.Gaussian, insertNum, f32VecDim)
 					if err != nil {
 						t.Error(err)
@@ -5188,7 +5098,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 4.3: Fail to MultiInsert with 2 existed ID when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5197,7 +5106,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					vecs, err := vector.GenF32Vec(vector.Gaussian, 2, f32VecDim)
 					if err != nil {
 						t.Error(err)
@@ -5246,7 +5155,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 4.4: Fail to MultiInsert with all existed ID when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5255,7 +5163,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					vecs, err := vector.GenF32Vec(vector.Gaussian, insertNum, f32VecDim)
 					if err != nil {
 						t.Error(err)
@@ -5295,7 +5203,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 5.1: Success to MultiInsert with 2 existed vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5304,7 +5211,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					// insert same request with different ID
 					for i := 0; i < 2; i++ {
 						ir := &payload.Insert_Request{
@@ -5341,7 +5248,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 5.2: Success to MultiInsert with all existed vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5350,7 +5256,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					// insert same request with different ID
 					for i := range req.Requests {
 						ir := &payload.Insert_Request{
@@ -5387,7 +5293,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 5.3: Success to MultiInsert with 2 existed vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5396,7 +5301,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					// insert same request with different ID
 					for i := 0; i < 2; i++ {
 						ir := &payload.Insert_Request{
@@ -5433,7 +5338,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 5.4: Success to MultiInsert with all existed vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5442,7 +5346,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					// insert same request with different ID
 					for i := range req.Requests {
 						ir := &payload.Insert_Request{
@@ -5479,7 +5383,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 6.1: Fail to MultiInsert with 2 existed ID & vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5488,7 +5391,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					for i := 0; i < 2; i++ {
 						ir := &payload.Insert_Request{
 							Vector: req.Requests[i].Vector,
@@ -5530,7 +5433,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testingcase 6.2: Fail to MultiInsert with all existed ID & vector when SkipStrictExistCheck is false",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5539,7 +5441,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					for _, r := range req.Requests {
 						ir := &payload.Insert_Request{
 							Vector: r.Vector,
@@ -5572,7 +5474,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 6.3: Fail to MultiInsert with 2 existed ID & vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5581,7 +5482,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					for i := 0; i < 2; i++ {
 						ir := &payload.Insert_Request{
 							Vector: req.Requests[i].Vector,
@@ -5623,7 +5524,6 @@ func Test_server_MultiInsert(t *testing.T) {
 			return test{
 				name: "Decision Table Testing case 6.4: Fail to MultiInsert with all existed ID & vector when SkipStrictExistCheck is true",
 				args: args{
-					ctx:  ctx,
 					reqs: req,
 				},
 				fields: fields{
@@ -5632,7 +5532,7 @@ func Test_server_MultiInsert(t *testing.T) {
 					svcCfg:  defaultF32SvcCfg,
 					svcOpts: defaultSvcOpts,
 				},
-				beforeFunc: func(t *testing.T, s *server) {
+				beforeFunc: func(t *testing.T, ctx context.Context, s *server) {
 					for _, r := range req.Requests {
 						ir := &payload.Insert_Request{
 							Vector: r.Vector,
@@ -5662,6 +5562,10 @@ func Test_server_MultiInsert(t *testing.T) {
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
 			if test.afterFunc != nil {
 				defer test.afterFunc(test.args)
 			}
@@ -5685,10 +5589,10 @@ func Test_server_MultiInsert(t *testing.T) {
 			}
 
 			if test.beforeFunc != nil {
-				test.beforeFunc(tt, s)
+				test.beforeFunc(tt, ctx, s)
 			}
 
-			gotRes, err := s.MultiInsert(test.args.ctx, test.args.reqs)
+			gotRes, err := s.MultiInsert(ctx, test.args.reqs)
 			if err := checkFunc(test.want, gotRes, err); err != nil {
 				tt.Errorf("error = %v", err)
 			}

@@ -1558,9 +1558,11 @@ func Test_server_Upsert(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			ctx, cancel := context.WithCancel(context.Background())
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+
+			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
+
 			if test.beforeFunc == nil {
 				test.beforeFunc = defaultBeforeFunc(ngt.Float.String(), defaultInsertNum)
 			}

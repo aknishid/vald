@@ -39,14 +39,13 @@ import (
 func Test_server_Update(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	type args struct {
-		ctx         context.Context
 		indexID     string
 		indexVector []float32
 		req         *payload.Update_Request
+	}
+	type fields struct {
+		objectType string
 	}
 	type want struct {
 		code     codes.Code
@@ -55,6 +54,7 @@ func Test_server_Update(t *testing.T) {
 	type test struct {
 		name       string
 		args       args
+		fields     fields
 		want       want
 		checkFunc  func(want, *payload.Object_Location, error) error
 		beforeFunc func(args) (Server, error)
@@ -98,7 +98,11 @@ func Test_server_Update(t *testing.T) {
 	defaultInsertConfig := &payload.Insert_Config{
 		SkipStrictExistCheck: true,
 	}
-	beforeFunc := func(objectType string) func(args) (Server, error) {
+	beforeFunc := func(ctx context.Context, objectType string) func(args) (Server, error) {
+		if objectType == "" {
+			objectType = ngt.Float.String()
+		}
+
 		cfg := &config.NGT{
 			Dimension:        dimension,
 			DistanceType:     ngt.L2.String(),
@@ -121,7 +125,7 @@ func Test_server_Update(t *testing.T) {
 					a.indexVector,
 				}
 			}
-			return buildIndex(a.ctx, request.Float, vector.Gaussian, insertNum, defaultInsertConfig, cfg, nil, []string{a.indexID}, overwriteVec)
+			return buildIndex(ctx, request.Float, vector.Gaussian, insertNum, defaultInsertConfig, cfg, nil, []string{a.indexID}, overwriteVec)
 		}
 	}
 
@@ -174,7 +178,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Equivalent Class Testing case 1.1: success update one vector",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -191,7 +194,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Equivalent Class Testing case 2.1: fail update with non-existent ID",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -207,8 +209,10 @@ func Test_server_Update(t *testing.T) {
 		},
 		{
 			name: "Equivalent Class Testing case 3.1: fail update with one different dimension vector (type: uint8)",
+			fields: fields{
+				objectType: ngt.Uint8.String(),
+			},
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -221,12 +225,10 @@ func Test_server_Update(t *testing.T) {
 			want: want{
 				code: codes.InvalidArgument,
 			},
-			beforeFunc: beforeFunc(ngt.Uint8.String()),
 		},
 		{
 			name: "Equivalent Class Testint case 3.2: fail update with one different dimension vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -244,7 +246,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 1.1: fail update with \"\" as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -261,7 +262,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.1: success update with ^@ as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: string([]byte{0}),
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -278,7 +278,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.2: success update with ^I as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: "\t",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -295,7 +294,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.3: success update with ^J as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: "\n",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -312,7 +310,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.4: success update with ^M as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: "\r",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -329,7 +326,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.5: success update with ^[ as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: string([]byte{27}),
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -346,7 +342,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.6: success update with ^? as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: string([]byte{127}),
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -363,7 +358,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.1: success update with utf-8 ID from utf-8 index",
 			args: args{
-				ctx:     ctx,
 				indexID: utf8Str,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -380,7 +374,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.2: success update with utf-8 ID from s-jis index",
 			args: args{
-				ctx:     ctx,
 				indexID: sjisStr,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -397,7 +390,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.3: success update with utf-8 ID from euc-jp index",
 			args: args{
-				ctx:     ctx,
 				indexID: eucjpStr,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -414,7 +406,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.4: fail update with s-jis ID from utf-8 index",
 			args: args{
-				ctx:     ctx,
 				indexID: utf8Str,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -431,7 +422,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.5: success update with s-jis ID from s-jis index",
 			args: args{
-				ctx:     ctx,
 				indexID: sjisStr,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -448,7 +438,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.6: fail update with s-jis ID from euc-jp index",
 			args: args{
-				ctx:     ctx,
 				indexID: eucjpStr,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -465,7 +454,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.7: fail update with euc-jp ID from utf-8 index",
 			args: args{
-				ctx:     ctx,
 				indexID: utf8Str,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -482,7 +470,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.8: fail update with euc-jp ID from s-jis index",
 			args: args{
-				ctx:     ctx,
 				indexID: sjisStr,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -499,7 +486,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.9: success update with euc-jp ID from euc-jp index",
 			args: args{
-				ctx:     ctx,
 				indexID: eucjpStr,
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -516,7 +502,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 4.1: success update with 😀 as ID",
 			args: args{
-				ctx:     ctx,
 				indexID: "😀",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -533,7 +518,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 5.1: success update with one 0 value vector (type: uint8)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -550,7 +534,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 5.2: success update with one +0 value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -567,7 +550,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 5.3: success update with one -0 value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -584,7 +566,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 6.1: success update with one min value vector (type: uint8)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -601,7 +582,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 6.2: success update with one min value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -618,7 +598,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 7.1: success update with one max value vector (type: uint8)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -635,7 +614,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 7.2: success update with one max value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -652,7 +630,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 8.1: success update with one NaN value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -669,7 +646,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 9.1: success update with one +inf value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -686,7 +662,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 9.2: success update with one -inf value vector (type: float32)",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -703,7 +678,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 10.1: fail update with one nil vector",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -720,7 +694,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 11.1: fail update with one empty vector",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -740,7 +713,6 @@ func Test_server_Update(t *testing.T) {
 			args: func() args {
 				vector := vector.GaussianDistributedFloat32VectorGenerator(1, dimension)[0]
 				return args{
-					ctx:         ctx,
 					indexID:     "test",
 					indexVector: vector,
 					req: &payload.Update_Request{
@@ -759,7 +731,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Decision Table Testing case 1.2: success update with one different vector, duplicated ID and SkipStrictExistCheck is true",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -778,7 +749,6 @@ func Test_server_Update(t *testing.T) {
 			args: func() args {
 				vector := vector.GaussianDistributedFloat32VectorGenerator(1, dimension)[0]
 				return args{
-					ctx:         ctx,
 					indexID:     "test",
 					indexVector: vector,
 					req: &payload.Update_Request{
@@ -799,7 +769,6 @@ func Test_server_Update(t *testing.T) {
 			args: func() args {
 				vector := vector.GaussianDistributedFloat32VectorGenerator(1, dimension)[0]
 				return args{
-					ctx:         ctx,
 					indexID:     "test",
 					indexVector: vector,
 					req: &payload.Update_Request{
@@ -820,7 +789,6 @@ func Test_server_Update(t *testing.T) {
 		{
 			name: "Decision Table Testing case 2.2: success update with one duplicated vector, duplicated ID and SkipStrictExistCheck is false",
 			args: args{
-				ctx:     ctx,
 				indexID: "test",
 				req: &payload.Update_Request{
 					Vector: &payload.Object_Vector{
@@ -841,7 +809,6 @@ func Test_server_Update(t *testing.T) {
 			args: func() args {
 				vector := vector.GaussianDistributedFloat32VectorGenerator(1, dimension)[0]
 				return args{
-					ctx:         ctx,
 					indexID:     "test",
 					indexVector: vector,
 					req: &payload.Update_Request{
@@ -866,8 +833,12 @@ func Test_server_Update(t *testing.T) {
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
 			if test.beforeFunc == nil {
-				test.beforeFunc = beforeFunc(ngt.Float.String())
+				test.beforeFunc = beforeFunc(ctx, tc.fields.objectType)
 			}
 			s, err := test.beforeFunc(test.args)
 			if err != nil {
@@ -881,7 +852,7 @@ func Test_server_Update(t *testing.T) {
 				checkFunc = defaultCheckFunc
 			}
 
-			gotRes, err := s.Update(test.args.ctx, test.args.req)
+			gotRes, err := s.Update(ctx, test.args.req)
 			if err := checkFunc(test.want, gotRes, err); err != nil {
 				tt.Errorf("error = %v", err)
 			}

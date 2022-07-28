@@ -38,11 +38,7 @@ import (
 func Test_server_Remove(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	type args struct {
-		ctx      context.Context
 		indexID  string
 		removeID string
 	}
@@ -55,7 +51,7 @@ func Test_server_Remove(t *testing.T) {
 		args       args
 		want       want
 		checkFunc  func(want, *payload.Object_Location, error) error
-		beforeFunc func(args) (Server, error)
+		beforeFunc func(context.Context, args) (Server, error)
 		afterFunc  func(args)
 	}
 	defaultCheckFunc := func(w want, gotRes *payload.Object_Location, err error) error {
@@ -106,8 +102,8 @@ func Test_server_Remove(t *testing.T) {
 	defaultInsertConfig := &payload.Insert_Config{
 		SkipStrictExistCheck: true,
 	}
-	defaultBeforeFunc := func(a args) (Server, error) {
-		return buildIndex(a.ctx, request.Float, vector.Gaussian, insertNum, defaultInsertConfig, defaultNgtConfig, nil, []string{a.indexID}, nil)
+	defaultBeforeFunc := func(ctx context.Context, a args) (Server, error) {
+		return buildIndex(ctx, request.Float, vector.Gaussian, insertNum, defaultInsertConfig, defaultNgtConfig, nil, []string{a.indexID}, nil)
 	}
 
 	/*
@@ -140,7 +136,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Equivalence Class Testing case 1.1: success exists vector",
 			args: args{
-				ctx:      ctx,
 				indexID:  "test",
 				removeID: "test",
 			},
@@ -151,7 +146,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Equivalence Class Testing case 2.1: fail exists with non-existent ID",
 			args: args{
-				ctx:      ctx,
 				indexID:  "test",
 				removeID: "non-existent",
 			},
@@ -162,7 +156,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 1.1: fail exists with \"\"",
 			args: args{
-				ctx:      ctx,
 				indexID:  "test",
 				removeID: "",
 			},
@@ -173,7 +166,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.1: success exists with ^@",
 			args: args{
-				ctx:      ctx,
 				indexID:  string([]byte{0}),
 				removeID: string([]byte{0}),
 			},
@@ -184,7 +176,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.2: success exists with ^I",
 			args: args{
-				ctx:      ctx,
 				indexID:  "\t",
 				removeID: "\t",
 			},
@@ -195,7 +186,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.3: success exists with ^J",
 			args: args{
-				ctx:      ctx,
 				indexID:  "\n",
 				removeID: "\n",
 			},
@@ -206,7 +196,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.4: success exists with ^M",
 			args: args{
-				ctx:      ctx,
 				indexID:  "\r",
 				removeID: "\r",
 			},
@@ -217,7 +206,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.5: success exists with ^[",
 			args: args{
-				ctx:      ctx,
 				indexID:  string([]byte{27}),
 				removeID: string([]byte{27}),
 			},
@@ -228,7 +216,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 2.6: success exists with ^?",
 			args: args{
-				ctx:      ctx,
 				indexID:  string([]byte{127}),
 				removeID: string([]byte{127}),
 			},
@@ -239,7 +226,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.1: success exists with utf-8 ID from utf-8 index",
 			args: args{
-				ctx:      ctx,
 				indexID:  utf8Str,
 				removeID: utf8Str,
 			},
@@ -250,7 +236,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.2: fail exists with utf-8 ID from s-jis index",
 			args: args{
-				ctx:      ctx,
 				indexID:  sjisStr,
 				removeID: utf8Str,
 			},
@@ -261,7 +246,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.3: fail exists with utf-8 ID from euc-jp index",
 			args: args{
-				ctx:      ctx,
 				indexID:  eucjpStr,
 				removeID: utf8Str,
 			},
@@ -272,7 +256,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.4: fail exists with s-jis ID from utf-8 index",
 			args: args{
-				ctx:      ctx,
 				indexID:  utf8Str,
 				removeID: sjisStr,
 			},
@@ -283,7 +266,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.5: success exists with s-jis ID from s-jis index",
 			args: args{
-				ctx:      ctx,
 				indexID:  sjisStr,
 				removeID: sjisStr,
 			},
@@ -294,7 +276,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.6: fail exists with s-jis ID from euc-jp index",
 			args: args{
-				ctx:      ctx,
 				indexID:  eucjpStr,
 				removeID: sjisStr,
 			},
@@ -305,7 +286,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.7: fail exists with euc-jp ID from utf-8 index",
 			args: args{
-				ctx:      ctx,
 				indexID:  utf8Str,
 				removeID: eucjpStr,
 			},
@@ -316,7 +296,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.8: fail exists with euc-jp ID from s-jis index",
 			args: args{
-				ctx:      ctx,
 				indexID:  sjisStr,
 				removeID: eucjpStr,
 			},
@@ -327,7 +306,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 3.9: success exists with euc-jp ID from euc-jp index",
 			args: args{
-				ctx:      ctx,
 				indexID:  eucjpStr,
 				removeID: eucjpStr,
 			},
@@ -338,7 +316,6 @@ func Test_server_Remove(t *testing.T) {
 		{
 			name: "Boundary Value Testing case 4.1: success exists with 😀",
 			args: args{
-				ctx:      ctx,
 				indexID:  "😀",
 				removeID: "😀",
 			},
@@ -353,10 +330,14 @@ func Test_server_Remove(t *testing.T) {
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
 			if test.beforeFunc == nil {
 				test.beforeFunc = defaultBeforeFunc
 			}
-			s, err := test.beforeFunc(test.args)
+			s, err := test.beforeFunc(ctx, test.args)
 			if err != nil {
 				tt.Errorf("error = %v", err)
 			}
@@ -373,7 +354,7 @@ func Test_server_Remove(t *testing.T) {
 					Id: test.args.removeID,
 				},
 			}
-			gotRes, err := s.Remove(test.args.ctx, req)
+			gotRes, err := s.Remove(ctx, req)
 			if err := checkFunc(test.want, gotRes, err); err != nil {
 				tt.Errorf("error = %v", err)
 			}
