@@ -136,7 +136,7 @@ func TestIsLocal(t *testing.T) {
 }
 
 func TestDialContext(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 	type args struct {
 		network string
 		addr    string
@@ -202,7 +202,7 @@ func TestDialContext(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
@@ -535,7 +535,7 @@ func TestSplitHostPort(t *testing.T) {
 }
 
 func TestScanPorts(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 	type args struct {
 		start uint16
 		end   uint16
@@ -720,7 +720,7 @@ func TestScanPorts(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())

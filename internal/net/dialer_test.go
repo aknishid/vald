@@ -583,7 +583,7 @@ func Test_dialer_lookup(t *testing.T) {
 }
 
 func Test_dialer_StartDialerCache(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 	type args struct{}
 	type want struct{}
 	type test struct {
@@ -689,7 +689,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
@@ -802,7 +802,7 @@ func Test_dialer_DialContext(t *testing.T) {
 }
 
 func Test_dialer_cachedDialer(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 	type args struct {
 		network string
 		addr    string
@@ -1267,7 +1267,7 @@ func Test_dialer_cachedDialer(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
@@ -1579,12 +1579,13 @@ func Test_dialer_cacheExpireHook(t *testing.T) {
 			if err := checkFunc(d); err != nil {
 				tt.Errorf("error = %v", err)
 			}
+			cancel()
 		})
 	}
 }
 
 func Test_dialer_tlsHandshake(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 	type args struct {
 		network    string
 		addr       string
@@ -1681,7 +1682,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 				},
 				beforeFunc: func(a args) {
 					// force connection to timeout
-					time.Sleep(100 * time.Millisecond)
+					time.Sleep(500 * time.Millisecond)
 				},
 				want: want{
 					err: context.DeadlineExceeded,
@@ -1734,7 +1735,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 	for _, tc := range tests {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
