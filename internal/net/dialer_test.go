@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-// Package net provi¥des net functionality for vald's network connection
+// Package net provides net functionality for vald's network connection
 package net
 
 import (
@@ -43,7 +43,7 @@ import (
 )
 
 func Test_dialerCache_IP(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() // avoid goroutine execced error
 	type fields struct {
 		ips []string
 		cnt uint32
@@ -144,7 +144,7 @@ func Test_dialerCache_IP(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc()
@@ -583,7 +583,7 @@ func Test_dialer_lookup(t *testing.T) {
 }
 
 func Test_dialer_StartDialerCache(t *testing.T) {
-	// t.Parallel()
+	// t.Parallel() // disable parallel to avoid conflict with other tests
 	type args struct{}
 	type want struct{}
 	type test struct {
@@ -802,7 +802,7 @@ func Test_dialer_DialContext(t *testing.T) {
 }
 
 func Test_dialer_cachedDialer(t *testing.T) {
-	// t.Parallel()
+	// t.Parallel() // disable parallel for the test using httptest to avoid conflict with goleak
 	type args struct {
 		network string
 		addr    string
@@ -1301,7 +1301,7 @@ func Test_dialer_cachedDialer(t *testing.T) {
 }
 
 func Test_dialer_dial(t *testing.T) {
-	t.Parallel()
+	// t.Parallel() // avoid goroutine execced error
 	type args struct {
 		network string
 		addr    string
@@ -1474,7 +1474,7 @@ func Test_dialer_dial(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			tt.Parallel()
+			// tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
@@ -1585,7 +1585,7 @@ func Test_dialer_cacheExpireHook(t *testing.T) {
 }
 
 func Test_dialer_tlsHandshake(t *testing.T) {
-	// t.Parallel()
+	// t.Parallel() // disable parallel for the test using httptest to avoid conflict with goleak
 	type args struct {
 		network    string
 		addr       string

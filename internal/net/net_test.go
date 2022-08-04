@@ -136,7 +136,7 @@ func TestIsLocal(t *testing.T) {
 }
 
 func TestDialContext(t *testing.T) {
-	// t.Parallel()
+	// t.Parallel() // disable parallel for the test using httptest to avoid conflict with goleak
 	type args struct {
 		network string
 		addr    string
@@ -535,7 +535,7 @@ func TestSplitHostPort(t *testing.T) {
 }
 
 func TestScanPorts(t *testing.T) {
-	// t.Parallel()
+	// t.Parallel() // disable parallel for the test using httptest to avoid conflict with goleak
 	type args struct {
 		start uint16
 		end   uint16
