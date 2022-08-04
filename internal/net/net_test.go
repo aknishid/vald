@@ -24,9 +24,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/vdaas/vald/internal/errors"
@@ -39,7 +37,7 @@ import (
 
 func TestMain(m *testing.M) {
 	log.Init(log.WithLoggerType(logger.NOP.String()))
-	os.Exit(m.Run())
+	goleak.VerifyTestMain(m)
 }
 
 func TestIsLocal(t *testing.T) {
@@ -136,7 +134,7 @@ func TestIsLocal(t *testing.T) {
 }
 
 func TestDialContext(t *testing.T) {
-	// t.Parallel() // disable parallel for the test using httptest to avoid conflict with goleak
+	t.Parallel()
 	type args struct {
 		network string
 		addr    string
@@ -149,9 +147,10 @@ func TestDialContext(t *testing.T) {
 		name       string
 		args       args
 		want       want
+		srv        *httptest.Server
 		checkFunc  func(want, Conn, error) error
-		beforeFunc func(args)
-		afterFunc  func(args)
+		beforeFunc func(*test)
+		afterFunc  func(*test)
 	}
 	defaultCheckFunc := func(w want, gotConn Conn, err error) error {
 		if !errors.Is(err, w.err) {
@@ -164,23 +163,27 @@ func TestDialContext(t *testing.T) {
 	}
 	tests := []test{
 		func() test {
-			srvContent := "test"
-			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(200)
-				fmt.Fprint(w, srvContent)
-			})
-			testSrv := httptest.NewServer(handler)
 
 			return test{
 				name: "dial return server content",
 				args: args{
 					network: TCP.String(),
-					addr:    testSrv.URL[len("http://"):],
+				},
+				beforeFunc: func(t *test) {
+					srvContent := "test"
+
+					t.srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						w.WriteHeader(200)
+						fmt.Fprint(w, srvContent)
+					}))
+					t.args.addr = t.srv.URL[len("http://"):]
 				},
 				checkFunc: func(w want, gotConn Conn, err error) error {
 					if !errors.Is(err, w.err) {
 						return errors.Errorf("got_error: \"%#v\",\n\t\t\t\twant: \"%#v\"", err, w.err)
 					}
+
+					srvContent := "test"
 
 					// read the output from the server and check if it is equals to the count
 					fmt.Fprintf(gotConn, "GET / HTTP/1.0\r\n\r\n")
@@ -192,24 +195,26 @@ func TestDialContext(t *testing.T) {
 
 					return nil
 				},
-				afterFunc: func(args) {
-					testSrv.CloseClientConnections()
-					testSrv.Close()
+				afterFunc: func(t *test) {
+					t.srv.Client().CloseIdleConnections()
+					t.srv.CloseClientConnections()
+					t.srv.Close()
 				},
 			}
 		}(),
 	}
 
-	for _, test := range tests {
+	for i := range tests {
+		test := &tests[i]
 		t.Run(test.name, func(tt *testing.T) {
-			// tt.Parallel()
+			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
 			if test.beforeFunc != nil {
-				test.beforeFunc(test.args)
+				test.beforeFunc(test)
 			}
 			checkFunc := test.checkFunc
 			if test.checkFunc == nil {
@@ -222,7 +227,7 @@ func TestDialContext(t *testing.T) {
 			}
 
 			if test.afterFunc != nil {
-				test.afterFunc(test.args)
+				test.afterFunc(test)
 			}
 		})
 	}
@@ -535,7 +540,7 @@ func TestSplitHostPort(t *testing.T) {
 }
 
 func TestScanPorts(t *testing.T) {
-	// t.Parallel() // disable parallel for the test using httptest to avoid conflict with goleak
+	t.Parallel()
 	type args struct {
 		start uint16
 		end   uint16
@@ -549,9 +554,17 @@ func TestScanPorts(t *testing.T) {
 		name       string
 		args       args
 		want       want
+		srvs       []*httptest.Server
 		checkFunc  func(want, []uint16, error) error
-		beforeFunc func(args)
-		afterFunc  func(args)
+		beforeFunc func(*testing.T, *test)
+		afterFunc  func(*test)
+	}
+	defaultAfterFunc := func(t *test) {
+		for _, s := range t.srvs {
+			s.Client().CloseIdleConnections()
+			s.CloseClientConnections()
+			s.Close()
+		}
 	}
 	defaultCheckFunc := func(w want, gotPorts []uint16, err error) error {
 		if !errors.Is(err, w.err) {
@@ -575,136 +588,138 @@ func TestScanPorts(t *testing.T) {
 		return nil
 	}
 	tests := []test{
-		func() test {
-			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(200)
-			})
-			testSrv := httptest.NewServer(handler)
-
-			s := strings.Split(testSrv.URL, ":")
-			p, _ := strconv.ParseUint(s[len(s)-1], 10, 16)
-			srvPort := uint16(p)
-
-			return test{
-				name: "return test server port number in given range",
-				args: args{
-					host:  "localhost",
-					start: srvPort - 5,
-					end:   srvPort + 5,
-				},
-				want: want{
-					wantPorts: []uint16{
-						srvPort,
-					},
-				},
-				afterFunc: func(args) {
-					testSrv.CloseClientConnections()
-					testSrv.Close()
-				},
-			}
-		}(),
-		func() test {
-			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(200)
-			})
-			testSrv := httptest.NewServer(handler)
-
-			s := strings.Split(testSrv.URL, ":")
-			p, _ := strconv.ParseUint(s[len(s)-1], 10, 16)
-			srvPort := uint16(p)
-
-			return test{
-				name: "return test server port number when start = end",
-				args: args{
-					host:  "localhost",
-					start: srvPort,
-					end:   srvPort,
-				},
-				want: want{
-					wantPorts: []uint16{
-						srvPort,
-					},
-				},
-				afterFunc: func(args) {
-					testSrv.CloseClientConnections()
-					testSrv.Close()
-				},
-			}
-		}(),
-		func() test {
-			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(200)
-			})
-			testSrv := httptest.NewServer(handler)
-
-			s := strings.Split(testSrv.URL, ":")
-			p, _ := strconv.ParseUint(s[len(s)-1], 10, 16)
-			srvPort := uint16(p)
-
-			return test{
-				name: "return test server port number when start > end",
-				args: args{
-					host:  "localhost",
-					start: srvPort + 10,
-					end:   srvPort - 10,
-				},
-				want: want{
-					wantPorts: []uint16{
-						srvPort,
-					},
-				},
-				afterFunc: func(args) {
-					testSrv.CloseClientConnections()
-					testSrv.Close()
-				},
-			}
-		}(),
-		func() test {
-			srvNum := 20
-
-			srvs := make([]*httptest.Server, 0, srvNum)
-			ports := make([]uint16, 0, srvNum)
-			minPort := uint16(math.MaxUint16)
-			maxPort := uint16(0)
-
-			for i := 0; i < srvNum; i++ {
-				handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		{
+			name: "return test server port number in given range",
+			args: args{
+				host: "localhost",
+			},
+			beforeFunc: func(t *testing.T, test *test) {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
-				})
-				srv := httptest.NewServer(handler)
-				srvs = append(srvs, srv)
+				}))
 
-				s := strings.Split(srv.URL, ":")
-				p, _ := strconv.ParseUint(s[len(s)-1], 10, 16)
-				port := uint16(p)
-				ports = append(ports, port)
-
-				if port < minPort {
-					minPort = port
+				_, p, err := SplitHostPort(srv.URL[len("http://"):])
+				if err != nil {
+					t.Error(err)
 				}
-				if port > maxPort {
-					maxPort = port
-				}
-			}
 
-			return test{
-				name: "return multiple test server port number",
-				args: args{
-					host:  "localhost",
-					start: minPort - 5,
-					end:   maxPort + 5,
-				},
-				want: want{
-					wantPorts: ports,
-				},
-				afterFunc: func(args) {
-					for _, s := range srvs {
-						s.CloseClientConnections()
-						s.Close()
+				test.srvs = []*httptest.Server{
+					srv,
+				}
+
+				// set args to server port range
+				test.args.start = p - 5
+				test.args.end = p + 5
+
+				// set want to server port
+				test.want.wantPorts = []uint16{
+					p,
+				}
+			},
+		},
+		{
+			name: "return test server port number when start = end",
+			args: args{
+				host: "localhost",
+			},
+			beforeFunc: func(t *testing.T, test *test) {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+				}))
+
+				_, p, err := SplitHostPort(srv.URL[len("http://"):])
+				if err != nil {
+					t.Error(err)
+				}
+
+				test.srvs = []*httptest.Server{
+					srv,
+				}
+
+				// set args to server port range
+				test.args.start = p
+				test.args.end = p
+
+				// set want to server port
+				test.want.wantPorts = []uint16{
+					p,
+				}
+			},
+		},
+		{
+			name: "return test server port number when start > end",
+			args: args{
+				host: "localhost",
+			},
+			beforeFunc: func(t *testing.T, test *test) {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+				}))
+
+				_, p, err := SplitHostPort(srv.URL[len("http://"):])
+				if err != nil {
+					t.Error(err)
+				}
+
+				test.srvs = []*httptest.Server{
+					srv,
+				}
+
+				// set args to server port range
+				test.args.start = p + 10
+				test.args.end = p - 10
+
+				// set want to server port
+				test.want.wantPorts = []uint16{
+					p,
+				}
+			},
+		},
+		{
+			name: "return multiple test server port number",
+			args: args{
+				host: "localhost",
+			},
+			beforeFunc: func(t *testing.T, test *test) {
+				srvNum := 20
+
+				srvs := make([]*httptest.Server, 0, srvNum)
+				ports := make([]uint16, 0, srvNum)
+				minPort := uint16(math.MaxUint16)
+				maxPort := uint16(0)
+
+				for i := 0; i < srvNum; i++ {
+					handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						w.WriteHeader(200)
+					})
+					srv := httptest.NewServer(handler)
+					srvs = append(srvs, srv)
+
+					_, p, err := SplitHostPort(srv.URL[len("http://"):])
+					if err != nil {
+						t.Error(err)
 					}
-				},
-			}
-		}(),
+
+					ports = append(ports, p)
+
+					if p < minPort {
+						minPort = p
+					}
+					if p > maxPort {
+						maxPort = p
+					}
+				}
+
+				test.srvs = srvs
+
+				// set args to server port range
+				test.args.start = minPort - 10
+				test.args.end = maxPort + 10
+
+				// set want to server port
+				test.want.wantPorts = ports
+			},
+		},
 		{
 			name: "return no port available if no port is scanned",
 			args: args{
@@ -718,20 +733,25 @@ func TestScanPorts(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for i := range tests {
+		test := &tests[i]
 		t.Run(test.name, func(tt *testing.T) {
-			// tt.Parallel()
+			tt.Parallel()
 			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
 			if test.beforeFunc != nil {
-				test.beforeFunc(test.args)
+				test.beforeFunc(tt, test)
 			}
 			checkFunc := test.checkFunc
 			if test.checkFunc == nil {
 				checkFunc = defaultCheckFunc
+			}
+			afterFunc := test.afterFunc
+			if test.afterFunc == nil {
+				afterFunc = defaultAfterFunc
 			}
 
 			gotPorts, err := ScanPorts(ctx, test.args.start, test.args.end, test.args.host)
@@ -739,9 +759,7 @@ func TestScanPorts(t *testing.T) {
 				tt.Errorf("error = %v", err)
 			}
 
-			if test.afterFunc != nil {
-				test.afterFunc(test.args)
-			}
+			afterFunc(test)
 		})
 	}
 }
