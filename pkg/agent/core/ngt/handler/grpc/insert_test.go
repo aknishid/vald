@@ -2367,6 +2367,33 @@ func Test_server_StreamInsert(t *testing.T) {
 					},
 					ngtCfg: defaultF32SvcCfg,
 				},
+				checkFunc: func(w want, got []*payload.Object_StreamLocation, err error) error {
+					if err != nil {
+						st, ok := status.FromError(err)
+						if !ok {
+							return errors.Errorf("got error cannot convert to Status: \"%#v\"", err)
+						}
+						if st.Code() != w.errCode {
+							return errors.Errorf("got code: \"%#v\",\n\t\t\t\twant code: \"%#v\"", st.Code(), w.errCode)
+						}
+					}
+
+					// since the insert order is not guaranteed, check only the error count on the response
+					sm := make(map[int32]int) // want status map
+					for _, r := range w.rpcResp {
+						sm[r.GetStatus().GetCode()] = sm[r.GetStatus().GetCode()] + 1
+					}
+					gsm := make(map[int32]int) // got status map
+					for _, r := range got {
+						gsm[r.GetStatus().GetCode()] = gsm[r.GetStatus().GetCode()] + 1
+					}
+
+					if !reflect.DeepEqual(sm, gsm) {
+						return errors.New("status count is not correct")
+					}
+
+					return nil
+				},
 				want: want{
 					errCode: codes.AlreadyExists,
 					rpcResp: func() []*payload.Object_StreamLocation {
