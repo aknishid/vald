@@ -162,46 +162,43 @@ func TestDialContext(t *testing.T) {
 		return nil
 	}
 	tests := []test{
-		func() test {
+		{
+			name: "dial return server content",
+			args: args{
+				network: TCP.String(),
+			},
+			beforeFunc: func(t *test) {
+				srvContent := "test"
 
-			return test{
-				name: "dial return server content",
-				args: args{
-					network: TCP.String(),
-				},
-				beforeFunc: func(t *test) {
-					srvContent := "test"
+				t.srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+					fmt.Fprint(w, srvContent)
+				}))
+				t.args.addr = t.srv.URL[len("http://"):]
+			},
+			checkFunc: func(w want, gotConn Conn, err error) error {
+				if !errors.Is(err, w.err) {
+					return errors.Errorf("got_error: \"%#v\",\n\t\t\t\twant: \"%#v\"", err, w.err)
+				}
 
-					t.srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-						w.WriteHeader(200)
-						fmt.Fprint(w, srvContent)
-					}))
-					t.args.addr = t.srv.URL[len("http://"):]
-				},
-				checkFunc: func(w want, gotConn Conn, err error) error {
-					if !errors.Is(err, w.err) {
-						return errors.Errorf("got_error: \"%#v\",\n\t\t\t\twant: \"%#v\"", err, w.err)
-					}
+				srvContent := "test"
 
-					srvContent := "test"
+				// read the output from the server and check if it is equals to the count
+				fmt.Fprintf(gotConn, "GET / HTTP/1.0\r\n\r\n")
+				buf, _ := io.ReadAll(gotConn)
+				content := strings.Split(string(buf), "\n")[5] // skip HTTP header
+				if content != srvContent {
+					return errors.Errorf("invalid content, got: %v, want: %v", content, srvContent)
+				}
 
-					// read the output from the server and check if it is equals to the count
-					fmt.Fprintf(gotConn, "GET / HTTP/1.0\r\n\r\n")
-					buf, _ := io.ReadAll(gotConn)
-					content := strings.Split(string(buf), "\n")[5] // skip HTTP header
-					if content != srvContent {
-						return errors.Errorf("invalid content, got: %v, want: %v", content, srvContent)
-					}
-
-					return nil
-				},
-				afterFunc: func(t *test) {
-					t.srv.Client().CloseIdleConnections()
-					t.srv.CloseClientConnections()
-					t.srv.Close()
-				},
-			}
-		}(),
+				return nil
+			},
+			afterFunc: func(t *test) {
+				t.srv.Client().CloseIdleConnections()
+				t.srv.CloseClientConnections()
+				t.srv.Close()
+			},
+		},
 	}
 
 	for i := range tests {

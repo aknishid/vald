@@ -39,5 +39,4 @@ func VerifyNone(t goleak.TestingT, options ...goleak.Option) {
 
 func VerifyTestMain(m goleak.TestingM, options ...goleak.Option) {
 	goleak.VerifyTestMain(m, append(options, defaultGoleakOptions...)...)
-
 }
