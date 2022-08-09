@@ -24,6 +24,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 
@@ -37,7 +38,7 @@ import (
 
 func TestMain(m *testing.M) {
 	log.Init(log.WithLoggerType(logger.NOP.String()))
-	goleak.VerifyTestMain(m)
+	os.Exit(m.Run())
 }
 
 func TestIsLocal(t *testing.T) {
