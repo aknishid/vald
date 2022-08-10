@@ -2321,6 +2321,7 @@ func Test_isHealthy(t *testing.T) {
 }
 
 func Test_poolConn_Close(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		ctx   context.Context
 		delay time.Duration

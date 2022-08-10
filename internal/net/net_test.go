@@ -110,7 +110,8 @@ func TestIsLocal(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -373,7 +374,8 @@ func TestParse(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -510,7 +512,8 @@ func TestSplitHostPort(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {

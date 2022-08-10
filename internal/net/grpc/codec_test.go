@@ -27,6 +27,7 @@ import (
 )
 
 func TestCodec_Marshal(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		v interface{}
 	}
@@ -119,6 +120,7 @@ func TestCodec_Marshal(t *testing.T) {
 }
 
 func TestCodec_Unmarshal(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		data []byte
 		v    interface{}
@@ -212,6 +214,7 @@ func TestCodec_Unmarshal(t *testing.T) {
 }
 
 func TestCodec_Name(t *testing.T) {
+	t.Parallel()
 	type want struct {
 		want string
 	}

@@ -19,6 +19,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"runtime"
 	"time"
@@ -57,7 +58,9 @@ func (t *timeout) Wrap(h rest.Func) rest.Func {
 			defer close(sch)
 			// it is the responsibility for handler to close the request
 			var code int
+			fmt.Println("call h")
 			code, err = h(w, r.WithContext(ctx))
+			fmt.Printf("code: %v, err: %v\n", code, err)
 			if err != nil {
 				select {
 				case <-ctx.Done():

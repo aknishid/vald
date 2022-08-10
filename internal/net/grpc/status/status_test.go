@@ -1706,6 +1706,7 @@ func TestFromError(t *testing.T) {
 }
 
 func TestParseError(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		err         error
 		defaultCode codes.Code
@@ -1825,6 +1826,7 @@ func TestParseError(t *testing.T) {
 }
 
 func Test_withDetails(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		st      *Status
 		err     error
@@ -1903,6 +1905,7 @@ func Test_withDetails(t *testing.T) {
 }
 
 func TestLog(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		code codes.Code
 		err  error

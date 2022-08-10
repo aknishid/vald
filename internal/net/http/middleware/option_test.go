@@ -1,21 +1,20 @@
-//
 // Copyright (C) 2019-2022 vdaas.org vald team <vald@vdaas.org>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//    https://www.apache.org/licenses/LICENSE-2.0
+//	https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 package middleware
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -25,6 +24,7 @@ import (
 )
 
 func TestWithErrorGroup(t *testing.T) {
+	t.Parallel()
 	type test struct {
 		name      string
 		dur       string
@@ -60,10 +60,12 @@ func TestWithErrorGroup(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			opt := WithTimeout(tt.dur)
-			if err := tt.checkFunc(opt); err != nil {
+	for _, tc := range tests {
+		test := tc
+		t.Run(test.name, func(tt *testing.T) {
+			tt.Parallel()
+			opt := WithTimeout(test.dur)
+			if err := test.checkFunc(opt); err != nil {
 				t.Error(err)
 			}
 		})
@@ -71,6 +73,7 @@ func TestWithErrorGroup(t *testing.T) {
 }
 
 func TestWithTimeout(t *testing.T) {
+	t.Parallel()
 	type test struct {
 		name      string
 		eg        errgroup.Group
@@ -79,7 +82,7 @@ func TestWithTimeout(t *testing.T) {
 
 	tests := []test{
 		func() test {
-			eg := errgroup.Get()
+			eg, _ := errgroup.New(context.Background())
 
 			return test{
 				name: "set success",
@@ -97,10 +100,12 @@ func TestWithTimeout(t *testing.T) {
 		}(),
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			opt := WithErrorGroup(tt.eg)
-			if err := tt.checkFunc(opt); err != nil {
+	for _, tc := range tests {
+		test := tc
+		t.Run(test.name, func(tt *testing.T) {
+			tt.Parallel()
+			opt := WithErrorGroup(test.eg)
+			if err := test.checkFunc(opt); err != nil {
 				t.Error(err)
 			}
 		})

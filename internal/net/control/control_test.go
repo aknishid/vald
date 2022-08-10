@@ -333,6 +333,7 @@ func Test_control_GetControl(t *testing.T) {
 }
 
 func Test_control_controlFunc(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		network string
 		address string

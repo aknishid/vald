@@ -26,6 +26,7 @@ import (
 )
 
 func TestRegister(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		name string
 		srv  *grpc.Server

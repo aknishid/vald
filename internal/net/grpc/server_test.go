@@ -778,6 +778,7 @@ func TestHeaderTableSize(t *testing.T) {
 }
 
 func TestKeepaliveEnforcementPolicy(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		kep keepalive.EnforcementPolicy
 	}

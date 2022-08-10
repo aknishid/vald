@@ -83,7 +83,8 @@ func TestWithDNSCache(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -167,7 +168,8 @@ func TestWithDNSRefreshDuration(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -250,7 +252,8 @@ func TestWithDNSCacheExpiration(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -329,7 +332,8 @@ func TestWithDialerTimeout(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -409,7 +413,8 @@ func TestWithDialerKeepalive(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -480,7 +485,8 @@ func TestWithTLS(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -535,7 +541,8 @@ func TestWithEnableDNSCache(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -590,7 +597,8 @@ func TestWithDisableDNSCache(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -645,7 +653,8 @@ func TestWithEnableDialerDualStack(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {
@@ -700,7 +709,8 @@ func TestWithDisableDialerDualStack(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			if test.beforeFunc != nil {

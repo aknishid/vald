@@ -2483,6 +2483,7 @@ func Test_gRPCClient_Close(t *testing.T) {
 }
 
 func Test_gRPCClient_GetBackoff(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		addrs               map[string]struct{}
 		atomicAddrs         AtomicAddrs

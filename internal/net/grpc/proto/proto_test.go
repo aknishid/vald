@@ -27,6 +27,7 @@ import (
 )
 
 func TestMarshal(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		m Message
 	}
@@ -102,6 +103,7 @@ func TestMarshal(t *testing.T) {
 }
 
 func TestUnmarshal(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		data []byte
 		v    Message
@@ -261,6 +263,7 @@ func TestClone(t *testing.T) {
 }
 
 func TestToMessageV1(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		m Message
 	}
