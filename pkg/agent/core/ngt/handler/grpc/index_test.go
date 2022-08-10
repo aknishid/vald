@@ -753,7 +753,7 @@ func Test_server_IndexInfo(t *testing.T) {
 
 					go func() {
 						if _, err := s.SaveIndex(ctx, &payload.Empty{}); err != nil {
-							t.Error(err)
+							t.Log(err)
 						}
 					}()
 				},

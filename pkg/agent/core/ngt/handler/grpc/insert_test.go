@@ -1464,7 +1464,7 @@ func Test_server_StreamInsert(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(sm, gsm) {
-			return errors.New("status count is not correct")
+			return errors.Errorf("status count is not correct, got: %v, want: %v", gsm, sm)
 		}
 
 		return nil
