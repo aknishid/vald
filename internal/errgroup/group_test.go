@@ -36,6 +36,7 @@ func TestMain(m *testing.M) {
 	log.Init(log.WithLoggerType(logger.NOP.String()))
 	goleak.VerifyTestMain(m)
 }
+
 func TestNew(t *testing.T) {
 	type args struct {
 		ctx context.Context
