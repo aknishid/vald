@@ -1668,7 +1668,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 				network: TCP.String(),
 			},
 			opts: []DialerOption{
-				WithDialerTimeout("20ms"),
+				WithDialerTimeout("1us"),
 				WithTLS(func() *tls.Config {
 					c, err := tls.NewClientConfig(tls.WithInsecureSkipVerify(true))
 					if err != nil {
