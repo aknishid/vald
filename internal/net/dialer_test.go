@@ -635,7 +635,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 					}
 
 					// check cache update until timeout
-					timeout := time.After(time.Second)
+					timeout := time.After(5 * time.Second)
 					ticker := time.Tick(20 * time.Millisecond)
 					for {
 						select {
