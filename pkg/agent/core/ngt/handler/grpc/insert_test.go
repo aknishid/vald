@@ -19,7 +19,6 @@ import (
 	"io"
 	"math"
 	"reflect"
-	"sort"
 	"strings"
 	"testing"
 
@@ -32,7 +31,6 @@ import (
 	"github.com/vdaas/vald/internal/net/grpc/codes"
 	"github.com/vdaas/vald/internal/net/grpc/errdetails"
 	"github.com/vdaas/vald/internal/net/grpc/status"
-	"github.com/vdaas/vald/internal/test/comparator"
 	"github.com/vdaas/vald/internal/test/data/request"
 	"github.com/vdaas/vald/internal/test/data/vector"
 	"github.com/vdaas/vald/internal/test/mock"
@@ -1435,18 +1433,6 @@ func Test_server_StreamInsert(t *testing.T) {
 		strictExistCheckCfg = &payload.Insert_Config{
 			SkipStrictExistCheck: false,
 		}
-
-		objectStreamLocationComparators = []comparator.Option{
-			comparator.IgnoreUnexported(payload.Object_StreamLocation{}),
-			comparator.IgnoreUnexported(payload.Object_Location{}),
-
-			// ignore checking status, will validate it on Test_server_StreamInsert defaultCheckFunc
-			comparator.IgnoreFields(payload.Object_StreamLocation_Status{}, "Status"),
-		}
-
-		objectLocationComparators = []comparator.Option{
-			comparator.IgnoreUnexported(payload.Object_Location{}),
-		}
 	)
 
 	genObjectStreamLoc := func(code codes.Code) *payload.Object_StreamLocation {
@@ -1455,20 +1441,6 @@ func Test_server_StreamInsert(t *testing.T) {
 				Status: status.New(code, "").Proto(),
 			},
 		}
-	}
-	sortObjectStreamLocation := func(l []*payload.Object_StreamLocation) {
-		if l == nil {
-			return
-		}
-		sort.Slice(l, func(i, j int) bool {
-			if l[i] == nil || l[i].GetLocation() == nil {
-				return true
-			}
-			if l[j] == nil || l[j].GetLocation() == nil {
-				return false
-			}
-			return l[i].GetLocation().Uuid < l[j].GetLocation().Uuid
-		})
 	}
 	defaultCheckFunc := func(w want, rpcResp []*payload.Object_StreamLocation, err error) error {
 		if err != nil {
@@ -1481,27 +1453,20 @@ func Test_server_StreamInsert(t *testing.T) {
 			}
 		}
 
-		// sort the response by the uuid before checking
-		sortObjectStreamLocation(rpcResp)
-		sortObjectStreamLocation(w.rpcResp)
-
-		if diff := comparator.Diff(rpcResp, w.rpcResp, objectStreamLocationComparators...); diff != "" {
-			return errors.New(diff)
+		// since the insert order is not guaranteed, check only the error count on the response
+		sm := make(map[int32]int) // want status map
+		for _, r := range w.rpcResp {
+			sm[r.GetStatus().GetCode()] = sm[r.GetStatus().GetCode()] + 1
+		}
+		gsm := make(map[int32]int) // got status map
+		for _, r := range rpcResp {
+			gsm[r.GetStatus().GetCode()] = gsm[r.GetStatus().GetCode()] + 1
 		}
 
-		// check status
-		if len(rpcResp) != len(w.rpcResp) {
-			return errors.Errorf("gotResp length not match with wantResp, got: %#v, want: %#v", rpcResp, w.rpcResp)
+		if !reflect.DeepEqual(sm, gsm) {
+			return errors.New("status count is not correct")
 		}
-		for i, gotResp := range rpcResp {
-			wantResp := w.rpcResp[i]
-			if diff := comparator.Diff(gotResp.GetStatus().GetCode(), wantResp.GetStatus().GetCode()); diff != "" {
-				return errors.New(diff)
-			}
-			if diff := comparator.Diff(gotResp.GetLocation(), wantResp.GetLocation(), objectLocationComparators...); diff != "" {
-				return errors.New(diff)
-			}
-		}
+
 		return nil
 	}
 
@@ -2362,33 +2327,6 @@ func Test_server_StreamInsert(t *testing.T) {
 						WithIP(ip),
 					},
 					ngtCfg: defaultF32SvcCfg,
-				},
-				checkFunc: func(w want, got []*payload.Object_StreamLocation, err error) error {
-					if err != nil {
-						st, ok := status.FromError(err)
-						if !ok {
-							return errors.Errorf("got error cannot convert to Status: \"%#v\"", err)
-						}
-						if st.Code() != w.errCode {
-							return errors.Errorf("got code: \"%#v\",\n\t\t\t\twant code: \"%#v\"", st.Code(), w.errCode)
-						}
-					}
-
-					// since the insert order is not guaranteed, check only the error count on the response
-					sm := make(map[int32]int) // want status map
-					for _, r := range w.rpcResp {
-						sm[r.GetStatus().GetCode()] = sm[r.GetStatus().GetCode()] + 1
-					}
-					gsm := make(map[int32]int) // got status map
-					for _, r := range got {
-						gsm[r.GetStatus().GetCode()] = gsm[r.GetStatus().GetCode()] + 1
-					}
-
-					if !reflect.DeepEqual(sm, gsm) {
-						return errors.New("status count is not correct")
-					}
-
-					return nil
 				},
 				want: want{
 					errCode: codes.AlreadyExists,
