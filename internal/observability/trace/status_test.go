@@ -76,7 +76,8 @@ func TestStatusCodeOK(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -146,7 +147,8 @@ func TestStatusCodeCancelled(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -216,7 +218,8 @@ func TestStatusCodeUnknown(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -286,7 +289,8 @@ func TestStatusCodeInvalidArgument(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -356,7 +360,8 @@ func TestStatusCodeDeadlineExceeded(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -426,7 +431,8 @@ func TestStatusCodeNotFound(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -496,7 +502,8 @@ func TestStatusCodeAlreadyExists(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -566,7 +573,8 @@ func TestStatusCodePermissionDenied(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -636,7 +644,8 @@ func TestStatusCodeResourceExhausted(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -706,7 +715,8 @@ func TestStatusCodeFailedPrecondition(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -776,7 +786,8 @@ func TestStatusCodeAborted(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -846,7 +857,8 @@ func TestStatusCodeOutOfRange(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -916,7 +928,8 @@ func TestStatusCodeUnimplemented(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -986,7 +999,8 @@ func TestStatusCodeInternal(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -1056,7 +1070,8 @@ func TestStatusCodeUnavailable(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -1126,7 +1141,8 @@ func TestStatusCodeDataLoss(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
@@ -1196,7 +1212,8 @@ func TestStatusCodeUnauthenticated(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)

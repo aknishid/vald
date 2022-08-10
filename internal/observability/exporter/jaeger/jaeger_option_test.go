@@ -98,7 +98,8 @@ func TestWithCollectorEndpoint(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -212,7 +213,8 @@ func TestWithAgentEndpoint(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -326,7 +328,8 @@ func TestWithUsername(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -440,7 +443,8 @@ func TestWithPassword(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -554,7 +558,8 @@ func TestWithServiceName(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -668,7 +673,8 @@ func TestWithBufferMaxCount(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -782,7 +788,8 @@ func TestWithOnErrorFunc(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {

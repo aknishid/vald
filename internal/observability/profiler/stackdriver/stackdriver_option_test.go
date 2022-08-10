@@ -99,7 +99,8 @@ func TestWithProjectID(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -213,7 +214,8 @@ func TestWithService(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -327,7 +329,8 @@ func TestWithServiceVersion(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -441,7 +444,8 @@ func TestWithDebugLogging(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -555,7 +559,8 @@ func TestWithMutexProfiling(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -669,7 +674,8 @@ func TestWithCPUProfiling(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -783,7 +789,8 @@ func TestWithAllocProfiling(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -897,7 +904,8 @@ func TestWithHeapProfiling(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1011,7 +1019,8 @@ func TestWithGoroutineProfiling(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1125,7 +1134,8 @@ func TestWithAllocForceGC(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1239,7 +1249,8 @@ func TestWithAPIAddr(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1353,7 +1364,8 @@ func TestWithInstance(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1467,7 +1479,8 @@ func TestWithZone(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1581,7 +1594,8 @@ func TestWithClientOptions(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {

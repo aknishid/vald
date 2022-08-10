@@ -73,7 +73,8 @@ func TestNew(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -181,7 +182,8 @@ func Test_redisMetrics_Measurement(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -299,7 +301,8 @@ func Test_redisMetrics_MeasurementWithTags(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -403,7 +406,8 @@ func Test_redisMetrics_View(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -524,7 +528,8 @@ func Test_redisMetrics_BeforeProcess(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -641,7 +646,8 @@ func Test_redisMetrics_AfterProcess(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -762,7 +768,8 @@ func Test_redisMetrics_BeforeProcessPipeline(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)
@@ -879,7 +886,8 @@ func Test_redisMetrics_AfterProcessPipeline(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
 			defer goleak.VerifyNone(tt)

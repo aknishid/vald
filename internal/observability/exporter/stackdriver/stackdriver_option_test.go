@@ -102,7 +102,8 @@ func TestWithMonitoring(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -216,7 +217,8 @@ func TestWithTracing(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -330,7 +332,8 @@ func TestWithProjectID(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -444,7 +447,8 @@ func TestWithLocation(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -558,7 +562,8 @@ func TestWithOnErrorFunc(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -672,7 +677,8 @@ func TestWithMonitoringClientOptions(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -786,7 +792,8 @@ func TestWithTraceClientOptions(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -900,7 +907,8 @@ func TestWithBundleDelayThreshold(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1014,7 +1022,8 @@ func TestWithBundleCountThreshold(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1128,7 +1137,8 @@ func TestWithTraceSpansBufferMaxBytes(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1242,7 +1252,8 @@ func TestWithMonitoredResource(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1356,7 +1367,8 @@ func TestWithMetricPrefix(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1470,7 +1482,8 @@ func TestWithGetMetricDisplayName(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1584,7 +1597,8 @@ func TestWithGetMetricPrefix(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1698,7 +1712,8 @@ func TestWithDefaultMonitoringLabels(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1812,7 +1827,8 @@ func TestWithSkipCMD(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -1926,7 +1942,8 @@ func TestWithTimeout(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -2040,7 +2057,8 @@ func TestWithReportingInterval(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -2154,7 +2172,8 @@ func TestWithNumberOfWorkers(t *testing.T) {
 		*/
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {

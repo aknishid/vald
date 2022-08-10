@@ -83,7 +83,8 @@ func TestNew(t *testing.T) {
 		}(),
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -153,7 +154,8 @@ func TestInit(t *testing.T) {
 		}(),
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc == nil {
@@ -236,7 +238,8 @@ func TestGet(t *testing.T) {
 		}(),
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc == nil {
@@ -307,7 +310,8 @@ func TestGo(t *testing.T) {
 		}(),
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -396,7 +400,8 @@ func Test_group_Limitation(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -543,7 +548,8 @@ func Test_group_Go(t *testing.T) {
 		}(),
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.afterFunc != nil {
@@ -609,7 +615,8 @@ func Test_group_doCancel(t *testing.T) {
 		}(),
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
@@ -663,9 +670,11 @@ func TestWait(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(t)
+			tt.Parallel()
+			defer goleak.VerifyNone(tt)
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -753,7 +762,8 @@ func Test_group_Wait(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for _, tc := range tests {
+		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			defer goleak.VerifyNone(tt)
 			if test.afterFunc != nil {
