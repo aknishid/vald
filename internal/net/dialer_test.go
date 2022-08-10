@@ -1691,7 +1691,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 						return nil
 					}
 					return c
-				}()), WithDialerTimeout("10S"))
+				}()), WithDialerTimeout("10s"))
 				if err != nil {
 					t.Errorf("failed to initialize dialer: %v", err)
 				}
