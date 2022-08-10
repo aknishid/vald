@@ -27,10 +27,10 @@ import (
 	"github.com/vdaas/vald/internal/cache/gache"
 	"github.com/vdaas/vald/internal/errors"
 	"github.com/vdaas/vald/internal/net/control"
-	"github.com/vdaas/vald/internal/test/goleak"
 )
 
 func TestWithDNSCache(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type args struct {
 		c cache.Cache
@@ -85,7 +85,7 @@ func TestWithDNSCache(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -109,6 +109,7 @@ func TestWithDNSCache(t *testing.T) {
 }
 
 func TestWithDNSRefreshDuration(t *testing.T) {
+	t.Parallel()
 	// Change interface type to the type of object you are testing
 	type T = dialer
 	type args struct {
@@ -168,7 +169,7 @@ func TestWithDNSRefreshDuration(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -190,6 +191,7 @@ func TestWithDNSRefreshDuration(t *testing.T) {
 }
 
 func TestWithDNSCacheExpiration(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type args struct {
 		dur string
@@ -250,7 +252,7 @@ func TestWithDNSCacheExpiration(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -273,6 +275,7 @@ func TestWithDNSCacheExpiration(t *testing.T) {
 }
 
 func TestWithDialerTimeout(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type args struct {
 		dur string
@@ -328,7 +331,7 @@ func TestWithDialerTimeout(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -351,6 +354,7 @@ func TestWithDialerTimeout(t *testing.T) {
 }
 
 func TestWithDialerKeepalive(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type args struct {
 		dur string
@@ -407,7 +411,7 @@ func TestWithDialerKeepalive(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -430,6 +434,7 @@ func TestWithDialerKeepalive(t *testing.T) {
 }
 
 func TestWithTLS(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type args struct {
 		cfg *tls.Config
@@ -477,7 +482,7 @@ func TestWithTLS(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -500,6 +505,7 @@ func TestWithTLS(t *testing.T) {
 }
 
 func TestWithEnableDNSCache(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type want struct {
 		obj *T
@@ -531,7 +537,7 @@ func TestWithEnableDNSCache(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -554,6 +560,7 @@ func TestWithEnableDNSCache(t *testing.T) {
 }
 
 func TestWithDisableDNSCache(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type want struct {
 		obj *T
@@ -585,7 +592,7 @@ func TestWithDisableDNSCache(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -608,6 +615,7 @@ func TestWithDisableDNSCache(t *testing.T) {
 }
 
 func TestWithEnableDialerDualStack(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type want struct {
 		obj *T
@@ -639,7 +647,7 @@ func TestWithEnableDialerDualStack(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -662,6 +670,7 @@ func TestWithEnableDialerDualStack(t *testing.T) {
 }
 
 func TestWithDisableDialerDualStack(t *testing.T) {
+	t.Parallel()
 	type T = dialer
 	type want struct {
 		obj *T
@@ -693,7 +702,7 @@ func TestWithDisableDialerDualStack(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -795,7 +804,6 @@ func TestWithDialerFallbackDelay(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -912,7 +920,6 @@ func TestWithSocketFlag(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}

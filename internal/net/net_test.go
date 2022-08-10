@@ -24,7 +24,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 
@@ -38,10 +37,11 @@ import (
 
 func TestMain(m *testing.M) {
 	log.Init(log.WithLoggerType(logger.NOP.String()))
-	os.Exit(m.Run())
+	goleak.VerifyTestMain(m)
 }
 
 func TestIsLocal(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		host string
 	}
@@ -112,7 +112,7 @@ func TestIsLocal(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -133,6 +133,7 @@ func TestIsLocal(t *testing.T) {
 }
 
 func TestDialContext(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		network string
 		addr    string
@@ -202,7 +203,7 @@ func TestDialContext(t *testing.T) {
 	for i := range tests {
 		test := &tests[i]
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -228,6 +229,7 @@ func TestDialContext(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		addr string
 	}
@@ -373,7 +375,7 @@ func TestParse(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -394,6 +396,7 @@ func TestParse(t *testing.T) {
 }
 
 func TestSplitHostPort(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		hostport string
 	}
@@ -509,7 +512,7 @@ func TestSplitHostPort(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -530,6 +533,7 @@ func TestSplitHostPort(t *testing.T) {
 }
 
 func TestScanPorts(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		start uint16
 		end   uint16
@@ -725,7 +729,7 @@ func TestScanPorts(t *testing.T) {
 	for i := range tests {
 		test := &tests[i]
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -741,6 +745,7 @@ func TestScanPorts(t *testing.T) {
 			if test.afterFunc == nil {
 				afterFunc = defaultAfterFunc
 			}
+			defer afterFunc(test)
 
 			gotPorts, err := ScanPorts(ctx, test.args.start, test.args.end, test.args.host)
 			if err := checkFunc(test.want, gotPorts, err); err != nil {
@@ -753,6 +758,7 @@ func TestScanPorts(t *testing.T) {
 }
 
 func TestLoadLocalIP(t *testing.T) {
+	t.Parallel()
 	type want struct {
 		want string
 	}
@@ -781,7 +787,7 @@ func TestLoadLocalIP(t *testing.T) {
 	for _, tc := range tests {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -947,7 +953,6 @@ func TestNetworkTypeFromString(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -1084,7 +1089,6 @@ func TestNetworkType_String(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -1164,7 +1168,6 @@ func TestJoinHostPort(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}

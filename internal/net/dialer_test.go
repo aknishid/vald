@@ -38,11 +38,11 @@ import (
 	"github.com/vdaas/vald/internal/errors"
 	"github.com/vdaas/vald/internal/io"
 	"github.com/vdaas/vald/internal/net/control"
-	"github.com/vdaas/vald/internal/test/goleak"
 	"github.com/vdaas/vald/internal/tls"
 )
 
 func Test_dialerCache_IP(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		ips []string
 		cnt uint32
@@ -143,7 +143,7 @@ func Test_dialerCache_IP(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -168,6 +168,7 @@ func Test_dialerCache_IP(t *testing.T) {
 }
 
 func Test_dialerCache_Len(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		ips []string
 		cnt uint32
@@ -201,7 +202,7 @@ func Test_dialerCache_Len(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -226,6 +227,7 @@ func Test_dialerCache_Len(t *testing.T) {
 }
 
 func TestNewDialer(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		opts []DialerOption
 	}
@@ -350,7 +352,6 @@ func TestNewDialer(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
@@ -371,6 +372,7 @@ func TestNewDialer(t *testing.T) {
 }
 
 func Test_dialer_GetDialer(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		dialer func(ctx context.Context, network, addr string) (Conn, error)
 	}
@@ -410,7 +412,7 @@ func Test_dialer_GetDialer(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 			if test.beforeFunc != nil {
 				test.beforeFunc()
 			}
@@ -434,6 +436,7 @@ func Test_dialer_GetDialer(t *testing.T) {
 }
 
 func Test_dialer_lookup(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		addr string
 	}
@@ -541,7 +544,7 @@ func Test_dialer_lookup(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -574,6 +577,7 @@ func Test_dialer_lookup(t *testing.T) {
 }
 
 func Test_dialer_StartDialerCache(t *testing.T) {
+	t.Parallel()
 	type args struct{}
 	type want struct{}
 	type test struct {
@@ -679,7 +683,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -712,6 +716,7 @@ func Test_dialer_StartDialerCache(t *testing.T) {
 }
 
 func Test_dialer_DialContext(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		network string
 		address string
@@ -761,7 +766,7 @@ func Test_dialer_DialContext(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -789,6 +794,7 @@ func Test_dialer_DialContext(t *testing.T) {
 }
 
 func Test_dialer_cachedDialer(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		network string
 		addr    string
@@ -1265,7 +1271,7 @@ func Test_dialer_cachedDialer(t *testing.T) {
 	for i := range tests {
 		test := &tests[i]
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -1300,6 +1306,7 @@ func Test_dialer_cachedDialer(t *testing.T) {
 }
 
 func Test_dialer_dial(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		network string
 		addr    string
@@ -1472,7 +1479,7 @@ func Test_dialer_dial(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -1501,6 +1508,7 @@ func Test_dialer_dial(t *testing.T) {
 }
 
 func Test_dialer_cacheExpireHook(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		addr string
 	}
@@ -1546,7 +1554,7 @@ func Test_dialer_cacheExpireHook(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -1580,6 +1588,7 @@ func Test_dialer_cacheExpireHook(t *testing.T) {
 }
 
 func Test_dialer_tlsHandshake(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		conn    net.Conn
 		network string
@@ -1727,7 +1736,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 	for i := range tests {
 		test := &tests[i]
 		t.Run(test.name, func(tt *testing.T) {
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
+			tt.Parallel()
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -1767,6 +1776,7 @@ func Test_dialer_tlsHandshake(t *testing.T) {
 }
 
 func Test_dialer_lookupIPAddrs(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		ctx  context.Context
 		host string
@@ -1887,7 +1897,6 @@ func Test_dialer_lookupIPAddrs(t *testing.T) {
 		test := tc
 		t.Run(test.name, func(tt *testing.T) {
 			tt.Parallel()
-			defer goleak.VerifyNone(tt, goleak.IgnoreCurrent())
 			if test.beforeFunc != nil {
 				test.beforeFunc(test.args)
 			}
