@@ -27,6 +27,7 @@ var (
 		// ignore conflict with testing.T.Parallel()
 		goleak.IgnoreTopFunction("testing.(*testContext).waitParallel"),
 		goleak.IgnoreTopFunction("github.com/kpango/fastime.(*fastime).StartTimerD.func1"),
+		goleak.IgnoreTopFunction("go.opencensus.io/stats/view.(*worker).start"),
 	}
 
 	IgnoreTopFunction = goleak.IgnoreTopFunction
