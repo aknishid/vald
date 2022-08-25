@@ -2169,12 +2169,12 @@ func Test_server_StreamInsert(t *testing.T) {
 			}
 		}(),
 		func() test {
-			insertCnt := 100
+			insertCnt := 1000
 			reqs, err := request.GenMultiInsertReq(request.Float, vector.Gaussian, insertCnt, f32VecDim, strictExistCheckCfg)
 			if err != nil {
 				t.Fatal(err)
 			}
-			reqs.Requests[0].Vector.Id = reqs.Requests[1].Vector.Id
+			reqs.Requests[0].Vector.Id = reqs.Requests[999].Vector.Id
 
 			return test{
 				name: "Decision Table Testing case 1.1: Fail to StreamInsert with duplicated ID when SkipStrictExistCheck is false",
@@ -2199,12 +2199,12 @@ func Test_server_StreamInsert(t *testing.T) {
 			}
 		}(),
 		func() test {
-			insertCnt := 100
+			insertCnt := 1000
 			reqs, err := request.GenMultiInsertReq(request.Float, vector.Gaussian, insertCnt, f32VecDim, skipStrictExistCheckCfg)
 			if err != nil {
 				t.Fatal(err)
 			}
-			reqs.Requests[0].Vector.Id = reqs.Requests[1].Vector.Id
+			reqs.Requests[0].Vector.Id = reqs.Requests[999].Vector.Id
 
 			return test{
 				name: "Decision Table Testing case 1.2: Fail to StreamInsert with duplicated ID when SkipStrictExistCheck is true",
@@ -2279,13 +2279,13 @@ func Test_server_StreamInsert(t *testing.T) {
 			}
 		}(),
 		func() test {
-			insertCnt := 100
+			insertCnt := 1000
 			reqs, err := request.GenMultiInsertReq(request.Float, vector.Gaussian, insertCnt, f32VecDim, strictExistCheckCfg)
 			if err != nil {
 				t.Fatal(err)
 			}
-			reqs.Requests[0].Vector.Id = reqs.Requests[1].Vector.Id
-			reqs.Requests[0].Vector.Vector = reqs.Requests[1].Vector.Vector
+			reqs.Requests[0].Vector.Id = reqs.Requests[999].Vector.Id
+			reqs.Requests[0].Vector.Vector = reqs.Requests[999].Vector.Vector
 
 			return test{
 				name: "Decision Table Testing case 3.1: Fail to StreamInsert with duplicated ID & vector when SkipStrictExistCheck is false",
@@ -2310,13 +2310,13 @@ func Test_server_StreamInsert(t *testing.T) {
 			}
 		}(),
 		func() test {
-			insertCnt := 100
+			insertCnt := 1000
 			reqs, err := request.GenMultiInsertReq(request.Float, vector.Gaussian, insertCnt, f32VecDim, skipStrictExistCheckCfg)
 			if err != nil {
 				t.Fatal(err)
 			}
-			reqs.Requests[0].Vector.Id = reqs.Requests[1].Vector.Id
-			reqs.Requests[0].Vector.Vector = reqs.Requests[1].Vector.Vector
+			reqs.Requests[0].Vector.Id = reqs.Requests[999].Vector.Id
+			reqs.Requests[0].Vector.Vector = reqs.Requests[999].Vector.Vector
 
 			return test{
 				name: "Decision Table Testing case 3.2: Fail to StreamInsert with duplicated ID & vector when SkipStrictExistCheck is true",
@@ -2628,13 +2628,13 @@ func Test_server_StreamInsert(t *testing.T) {
 
 			recvIdx := 0
 			rpcResp := make([]*payload.Object_StreamLocation, 0)
+			insertReqs := test.args.insertReqs
 			stream := &mock.StreamInsertServerMock{
 				ServerStream: &mock.ServerStreamMock{
 					ContextFunc: func() context.Context {
 						return ctx
 					},
 					RecvMsgFunc: func(i interface{}) error {
-						insertReqs := test.args.insertReqs
 						if recvIdx >= len(insertReqs) {
 							return io.EOF
 						}
