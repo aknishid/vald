@@ -2677,7 +2677,7 @@ func Test_server_StreamInsert(t *testing.T) {
 	}
 }
 
-func TestA(t *testing.T) {
+func TestStreamInsert100sameRequest(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	defaultF32SvcCfg := &config.NGT{
@@ -2703,25 +2703,32 @@ func TestA(t *testing.T) {
 		Vector: []float32{1, 2, 3},
 	}
 	// mux := &sync.Mutex{}
+
+	// create stream mock for insert
 	stream := &mock.StreamInsertServerMock{
 		ServerStream: &mock.ServerStreamMock{
 			ContextFunc: func() context.Context {
 				return ctx
 			},
 			RecvMsgFunc: func(i interface{}) error {
+				// if we put the lock here, which means the data received from the stream is not concurrent
+				// but even we enable the lock here, the problem is not fix
+				// it might be because of even the data is receieved 1-by-1, it doesn't guarantee the insert request is processs 1-by-1
+
 				// mux.Lock()
 				// defer mux.Unlock()
-				if recvIdx >= 100 {
+				if recvIdx >= 100 { // the stream will receive 100 request before it is finished
 					return io.EOF
 				}
 
 				obj := i.(*payload.Insert_Request)
-				obj.Vector = vec
+				obj.Vector = vec // stream interface always receive same vector
 
 				recvIdx++
 				return nil
 			},
 			SendMsgFunc: func(i interface{}) error {
+				// store the response from the stream
 				rpcResp = append(rpcResp, i.(*payload.Object_StreamLocation))
 				return nil
 			},
@@ -2733,9 +2740,12 @@ func TestA(t *testing.T) {
 		t.Errorf("failed to init service, err: %v", err)
 	}
 
+	// always insert same vector through the stream
 	if err := s.StreamInsert(stream); err != nil {
 		// t.Error(err)
 	}
+
+	// count the success response from the stream
 	successCount := 0
 	for _, r := range rpcResp {
 		if r.GetStatus().GetCode() == int32(codes.OK) {
@@ -2743,8 +2753,10 @@ func TestA(t *testing.T) {
 		}
 	}
 
+	// we expect only one 1 success response
 	if successCount != 1 {
-		t.Errorf("success count %v", successCount)
+		i, _ := s.IndexInfo(ctx, &payload.Empty{}) // get the uncommitted index count in NGT for reference
+		t.Errorf("not expected! success response count %v, uncommitted index in NGT: %v", successCount, i.GetUncommitted())
 	}
 }
 

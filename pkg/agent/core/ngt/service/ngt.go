@@ -681,6 +681,9 @@ func (n *ngt) InsertWithTime(uuid string, vec []float32, t int64) (err error) {
 var mux = &sync.Mutex{}
 
 func (n *ngt) insert(uuid string, vec []float32, t int64, validation bool) (err error) {
+	// this lock here will block the insert request and process it 1-by-1
+	// if we uncomment this fix, the problem will be fixed
+
 	// mux.Lock()
 	// defer mux.Unlock()
 	if len(uuid) == 0 {

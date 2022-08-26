@@ -89,6 +89,10 @@ func New(opts ...Option) (Queue, error) {
 var mux = &sync.Mutex{}
 
 func (v *vqueue) PushInsert(uuid string, vector []float32, date int64) error {
+	// this lock blocks the actual insertion to the vqueue.
+	// but it doesn't blocks the exist check.
+	// this will not fix the problem.
+
 	// mux.Lock()
 	// defer mux.Unlock()
 	if date == 0 {
