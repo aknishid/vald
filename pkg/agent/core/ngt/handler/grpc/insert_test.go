@@ -2713,7 +2713,7 @@ func TestStreamInsert100sameRequest(t *testing.T) {
 			RecvMsgFunc: func(i interface{}) error {
 				// if we put the lock here, which means the data received from the stream is not concurrent
 				// but even we enable the lock here, the problem is not fix
-				// it might be because of even the data is receieved 1-by-1, it doesn't guarantee the insert request is processs 1-by-1
+				// it might be because of even the data is receieved 1-by-1, it doesn't guarantee the insert request is process 1-by-1
 
 				// mux.Lock()
 				// defer mux.Unlock()
@@ -2722,7 +2722,7 @@ func TestStreamInsert100sameRequest(t *testing.T) {
 				}
 
 				obj := i.(*payload.Insert_Request)
-				obj.Vector = vec // stream interface always receive same vector
+				obj.Vector = vec // stream interface always receive the same vector
 
 				recvIdx++
 				return nil

@@ -109,11 +109,14 @@ func (v *vqueue) PushInsert(uuid string, vector []float32, date int64) error {
 	}
 	oidx, loaded := v.uiim.LoadOrStore(uuid, idx)
 	if loaded {
-		if oidx.date > idx.date {
-			return nil
+		if oidx.date >= idx.date {
+			// return nil
+			// return error if any inserted data contain lastest data
+			return errors.ErrUUIDAlreadyExists(uuid)
 		}
 		v.uiim.Store(uuid, idx)
 	}
+
 	v.addInsert(idx)
 	return nil
 }
@@ -195,14 +198,16 @@ func (v *vqueue) DVExists(uuid string) bool {
 }
 
 func (v *vqueue) addInsert(i index) {
-	date, ok := v.udim.Load(i.uuid)
-	if ok && i.date < date {
-		return
-	}
-	idx, ok := v.uiim.Load(i.uuid)
-	if ok && i.date < idx.date {
-		return
-	}
+	// since this logic is almost same as pushinsert, commented it to avoid duplicate checking on udim and uiim
+
+	// date, ok := v.udim.Load(i.uuid)
+	// if ok && i.date < date {
+	// 	return
+	// }
+	// idx, ok := v.uiim.Load(i.uuid)
+	// if ok && i.date < idx.date {
+	// 	return
+	// }
 	v.imu.Lock()
 	v.uii = append(v.uii, i)
 	v.imu.Unlock()
