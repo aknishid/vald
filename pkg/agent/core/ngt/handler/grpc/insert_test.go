@@ -1,18 +1,16 @@
-//
 // Copyright (C) 2019-2022 vdaas.org vald team <vald@vdaas.org>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//    https://www.apache.org/licenses/LICENSE-2.0
+//	https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 package grpc
 
 import (
@@ -2676,6 +2674,77 @@ func Test_server_StreamInsert(t *testing.T) {
 				tt.Errorf("error = %v", err)
 			}
 		})
+	}
+}
+
+func TestA(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	defaultF32SvcCfg := &config.NGT{
+		Dimension:    3,
+		DistanceType: ngt.Angle.String(),
+		ObjectType:   ngt.Float.String(),
+		KVSDB:        &config.KVSDB{},
+		VQueue:       &config.VQueue{},
+	}
+
+	eg, _ := errgroup.New(ctx)
+	ngt, err := service.New(defaultF32SvcCfg,
+		service.WithErrGroup(eg),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	recvIdx := 0
+	rpcResp := make([]*payload.Object_StreamLocation, 0)
+	vec := &payload.Object_Vector{
+		Id:     "sameid",
+		Vector: []float32{1, 2, 3},
+	}
+	// mux := &sync.Mutex{}
+	stream := &mock.StreamInsertServerMock{
+		ServerStream: &mock.ServerStreamMock{
+			ContextFunc: func() context.Context {
+				return ctx
+			},
+			RecvMsgFunc: func(i interface{}) error {
+				// mux.Lock()
+				// defer mux.Unlock()
+				if recvIdx >= 100 {
+					return io.EOF
+				}
+
+				obj := i.(*payload.Insert_Request)
+				obj.Vector = vec
+
+				recvIdx++
+				return nil
+			},
+			SendMsgFunc: func(i interface{}) error {
+				rpcResp = append(rpcResp, i.(*payload.Object_StreamLocation))
+				return nil
+			},
+		},
+	}
+
+	s, err := New(WithNGT(ngt), WithErrGroup(eg))
+	if err != nil {
+		t.Errorf("failed to init service, err: %v", err)
+	}
+
+	if err := s.StreamInsert(stream); err != nil {
+		// t.Error(err)
+	}
+	successCount := 0
+	for _, r := range rpcResp {
+		if r.GetStatus().GetCode() == int32(codes.OK) {
+			successCount++
+		}
+	}
+
+	if successCount != 1 {
+		t.Errorf("success count %v", successCount)
 	}
 }
 

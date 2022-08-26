@@ -86,7 +86,11 @@ func New(opts ...Option) (Queue, error) {
 	return vq, nil
 }
 
+var mux = &sync.Mutex{}
+
 func (v *vqueue) PushInsert(uuid string, vector []float32, date int64) error {
+	// mux.Lock()
+	// defer mux.Unlock()
 	if date == 0 {
 		date = time.Now().UnixNano()
 	}

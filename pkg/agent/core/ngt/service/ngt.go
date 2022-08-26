@@ -678,7 +678,11 @@ func (n *ngt) InsertWithTime(uuid string, vec []float32, t int64) (err error) {
 	return n.insert(uuid, vec, t, true)
 }
 
+var mux = &sync.Mutex{}
+
 func (n *ngt) insert(uuid string, vec []float32, t int64, validation bool) (err error) {
+	// mux.Lock()
+	// defer mux.Unlock()
 	if len(uuid) == 0 {
 		err = errors.ErrUUIDNotFound(0)
 		return err
