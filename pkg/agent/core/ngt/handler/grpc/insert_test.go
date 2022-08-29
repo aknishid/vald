@@ -39,6 +39,13 @@ import (
 	"github.com/vdaas/vald/pkg/agent/core/ngt/service"
 )
 
+// This test insert multiple same ID/vector to the same Vald Agent.
+// This test insert vectors one-by-one.
+// This test ensure the insert with multiple same ID/vector only return 1 success result
+// , the remaining insert request return error in non-parallel mode.
+// The result of this test can compare with the test `Test_server_Insert_parallel`
+// which insert in parallel mode, but produce different result.
+// The result of this test is as expected and only 1 success response is returned from multiple requests.
 func Test_server_Insert_multiple(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -73,17 +80,31 @@ func Test_server_Insert_multiple(t *testing.T) {
 
 	successCnt := 0
 	for i := 0; i < 20; i++ {
-		_, err = s.Insert(ctx, req)
+		_, err = s.Insert(ctx, req) // insert the same insert request
 		if err == nil {
 			successCnt++
+			continue
+		}
+
+		// convert the error and ensure it is already exists error
+		st, ok := status.FromError(err)
+		if !ok {
+			t.Errorf("error cannot convert to status, %v", err)
+		}
+		if st.Code() != codes.AlreadyExists {
+			t.Errorf("unexpected status code, %v", st)
 		}
 	}
 
+	// we expect only 1 success return from the insert requests
 	if successCnt != 1 {
 		t.Errorf("success count is not 1, %v", successCnt)
 	}
 }
 
+// This test is almost the same as above test `Test_server_Insert_multiple`
+// , except insert in parallel mode.
+// This test produce unexpected result which returns multiple success response from multiple insert requests.
 func Test_server_Insert_parallel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -124,14 +145,22 @@ func Test_server_Insert_parallel(t *testing.T) {
 	var successCnt int32 = 0
 	for i := 0; i < insertCnt; i++ {
 		go func() {
-			<-start // wait for start channel is closed to start this goroutine at the same time (as close as I can)
+			<-start // wait for start channel is closed to start this goroutine at the same time (as close as it can)
 			defer wg.Done()
 
 			_, err := s.Insert(ctx, req) // insert the same insert request
 			if err == nil {
 				atomic.AddInt32(&successCnt, 1) // add successs count 1 if no error is returned from Insert()
-			} else {
-				t.Log(err)
+				return
+			}
+
+			// convert the error and ensure it is already exists error
+			st, ok := status.FromError(err)
+			if !ok {
+				t.Errorf("error cannot convert to status, %v", err)
+			}
+			if st.Code() != codes.AlreadyExists {
+				t.Errorf("unexpected status code, %v", st)
 			}
 		}()
 	}
