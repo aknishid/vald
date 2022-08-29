@@ -20,6 +20,8 @@ import (
 	"math"
 	"reflect"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/vdaas/vald/apis/grpc/v1/payload"
@@ -36,6 +38,111 @@ import (
 	"github.com/vdaas/vald/internal/test/mock"
 	"github.com/vdaas/vald/pkg/agent/core/ngt/service"
 )
+
+func Test_server_Insert_multiple(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	defaultF32SvcCfg := &config.NGT{
+		Dimension:    3,
+		DistanceType: ngt.Angle.String(),
+		ObjectType:   ngt.Float.String(),
+		KVSDB:        &config.KVSDB{},
+		VQueue:       &config.VQueue{},
+	}
+
+	eg, _ := errgroup.New(ctx)
+	ngt, err := service.New(defaultF32SvcCfg,
+		service.WithErrGroup(eg),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &payload.Insert_Request{
+		Vector: &payload.Object_Vector{
+			Id:     "sameid",
+			Vector: []float32{1, 2, 3},
+		},
+	}
+
+	s, err := New(WithNGT(ngt), WithErrGroup(eg))
+	if err != nil {
+		t.Errorf("failed to init service, err: %v", err)
+	}
+
+	successCnt := 0
+	for i := 0; i < 20; i++ {
+		_, err = s.Insert(ctx, req)
+		if err == nil {
+			successCnt++
+		}
+	}
+
+	if successCnt != 1 {
+		t.Errorf("success count is not 1, %v", successCnt)
+	}
+}
+
+func Test_server_Insert_parallel(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	defaultF32SvcCfg := &config.NGT{
+		Dimension:    3,
+		DistanceType: ngt.Angle.String(),
+		ObjectType:   ngt.Float.String(),
+		KVSDB:        &config.KVSDB{},
+		VQueue:       &config.VQueue{},
+	}
+
+	eg, _ := errgroup.New(ctx)
+	ngt, err := service.New(defaultF32SvcCfg,
+		service.WithErrGroup(eg),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &payload.Insert_Request{
+		Vector: &payload.Object_Vector{
+			Id:     "sameid",
+			Vector: []float32{1, 2, 3},
+		},
+	}
+
+	s, err := New(WithNGT(ngt), WithErrGroup(eg))
+	if err != nil {
+		t.Errorf("failed to init service, err: %v", err)
+	}
+
+	insertCnt := 20
+	start := make(chan struct{}) // control the execution of insert goroutines
+	wg := &sync.WaitGroup{}
+	wg.Add(insertCnt)
+
+	var successCnt int32 = 0
+	for i := 0; i < insertCnt; i++ {
+		go func() {
+			<-start // wait for start channel is closed to start this goroutine at the same time (as close as I can)
+			defer wg.Done()
+
+			_, err := s.Insert(ctx, req) // insert the same insert request
+			if err == nil {
+				atomic.AddInt32(&successCnt, 1) // add successs count 1 if no error is returned from Insert()
+			} else {
+				t.Log(err)
+			}
+		}()
+	}
+	close(start) // start the insert goroutines at the same time (as close as it can)
+	wg.Wait()
+
+	// we expect only 1 success return from the insert requests
+	if atomic.LoadInt32(&successCnt) != 1 {
+		t.Errorf("success count is not 1, got: %v", successCnt)
+	}
+}
 
 func Test_server_Insert(t *testing.T) {
 	t.Parallel()
@@ -2172,7 +2279,7 @@ func Test_server_StreamInsert(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			reqs.Requests[0].Vector.Id = reqs.Requests[999].Vector.Id
+			reqs.Requests[0].Vector.Id = reqs.Requests[1].Vector.Id
 
 			return test{
 				name: "Decision Table Testing case 1.1: Fail to StreamInsert with duplicated ID when SkipStrictExistCheck is false",
