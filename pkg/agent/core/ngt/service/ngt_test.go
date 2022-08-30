@@ -29,11 +29,126 @@ import (
 	core "github.com/vdaas/vald/internal/core/algorithm/ngt"
 	"github.com/vdaas/vald/internal/errgroup"
 	"github.com/vdaas/vald/internal/errors"
+	"github.com/vdaas/vald/internal/info"
+	"github.com/vdaas/vald/internal/log"
+	"github.com/vdaas/vald/internal/log/logger"
 	"github.com/vdaas/vald/internal/test/goleak"
 	"github.com/vdaas/vald/pkg/agent/core/ngt/model"
 	"github.com/vdaas/vald/pkg/agent/core/ngt/service/kvs"
 	"github.com/vdaas/vald/pkg/agent/core/ngt/service/vqueue"
 )
+
+func TestMain(m *testing.M) {
+	log.Init(log.WithLoggerType(logger.NOP.String()))
+	info.Init("")
+	goleak.VerifyTestMain(m)
+}
+
+// This test insert same ID/vector in non-parallel mode.
+// We expected only one success response from multiple insert request.
+// The result of this test is as expected.
+// The result of this test can be compared with the test `Test_ngt_InsertWithTime_parallel`
+//
+//	which insert in parallel mode.
+func Test_ngt_InsertWithTime_multiple(t *testing.T) {
+	defaultF32SvcCfg := &config.NGT{
+		Dimension:    3,
+		DistanceType: core.Angle.String(),
+		ObjectType:   core.Float.String(),
+		KVSDB:        &config.KVSDB{},
+		VQueue:       &config.VQueue{},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	eg, _ := errgroup.New(ctx)
+	n, err := New(defaultF32SvcCfg, WithErrGroup(eg))
+	if err != nil {
+		t.Errorf("Cannot initialize ngt, err: %v", err)
+	}
+
+	uuid := "sameid"
+	vec := []float32{1, 2, 3}
+	var it int64 = 0 // insert time
+
+	successCnt := 0
+	for i := 0; i < 20; i++ {
+		err = n.InsertWithTime(uuid, vec, it)
+		if err == nil {
+			successCnt++
+			continue
+		}
+
+		// we only expect success request or already exist error from insert request
+		// ensure if it is already exists error
+		if err.Error() != errors.ErrUUIDAlreadyExists(uuid).Error() {
+			t.Errorf("unexpected err, %v", err)
+		}
+	}
+
+	// we expect only 1 success return from the insert requests
+	if successCnt != 1 {
+		t.Errorf("success count is not 1, %v", successCnt)
+	}
+}
+
+// This test is almost the same as above test `Test_ngt_InsertWithTime_multiple`
+// , except insert in parallel mode.
+// This test produce unexpected result which returns multiple success response from multiple insert requests.
+func Test_ngt_InsertWithTime_parallel(t *testing.T) {
+	defaultF32SvcCfg := &config.NGT{
+		Dimension:    3,
+		DistanceType: core.Angle.String(),
+		ObjectType:   core.Float.String(),
+		KVSDB:        &config.KVSDB{},
+		VQueue:       &config.VQueue{},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	eg, _ := errgroup.New(ctx)
+	n, err := New(defaultF32SvcCfg, WithErrGroup(eg))
+	if err != nil {
+		t.Errorf("Cannot initialize ngt, err: %v", err)
+	}
+
+	uuid := "sameid"
+	vec := []float32{1, 2, 3}
+	var it int64 = 0 // insert time
+
+	insertCnt := 20
+	start := make(chan struct{}) // control the execution of insert goroutines
+	wg := &sync.WaitGroup{}
+	wg.Add(insertCnt)
+
+	var successCnt int32 = 0
+	for i := 0; i < insertCnt; i++ {
+		go func() {
+			<-start // wait for start channel is closed to start this goroutine at the same time (as close as it can)
+			defer wg.Done()
+			err := n.InsertWithTime(uuid, vec, it)
+			if err == nil {
+				atomic.AddInt32(&successCnt, 1) // add successs count 1 if no error is returned from Insert()
+				return
+			}
+
+			// we only expect success request or already exist error from insert request
+			// ensure if it is already exists error
+			if err.Error() != errors.ErrUUIDAlreadyExists(uuid).Error() {
+				t.Errorf("unexpected err, %v", err)
+			}
+		}()
+	}
+	close(start) // start the insert goroutines at the same time (as close as it can)
+	wg.Wait()
+
+	// we expect only 1 success return from the insert requests
+	if atomic.LoadInt32(&successCnt) != 1 {
+		t.Errorf("success count is not 1, %v", successCnt)
+	}
+}
 
 func TestNew(t *testing.T) {
 	type args struct {
@@ -2213,42 +2328,8 @@ func Test_ngt_InsertWithTime(t *testing.T) {
 		t    int64
 	}
 	type fields struct {
-		core              core.NGT
-		eg                errgroup.Group
-		kvs               kvs.BidiMap
-		fmu               sync.Mutex
-		fmap              map[string]uint32
-		vq                vqueue.Queue
-		indexing          atomic.Value
-		saving            atomic.Value
-		cimu              sync.Mutex
-		lastNocie         uint64
-		nocie             uint64
-		nogce             uint64
-		inMem             bool
-		dim               int
-		alen              int
-		lim               time.Duration
-		dur               time.Duration
-		sdur              time.Duration
-		minLit            time.Duration
-		maxLit            time.Duration
-		litFactor         time.Duration
-		enableProactiveGC bool
-		enableCopyOnWrite bool
-		path              string
-		smu               sync.Mutex
-		tmpPath           atomic.Value
-		oldPath           string
-		basePath          string
-		cowmu             sync.Mutex
-		backupGen         uint64
-		poolSize          uint32
-		radius            float32
-		epsilon           float32
-		idelay            time.Duration
-		dcd               bool
-		kvsdbConcurrency  int
+		cfg  *config.NGT
+		opts []Option
 	}
 	type want struct {
 		err error
@@ -2269,110 +2350,20 @@ func Test_ngt_InsertWithTime(t *testing.T) {
 		return nil
 	}
 	tests := []test{
-		// TODO test cases
 		/*
-		   {
-		       name: "test_case_1",
-		       args: args {
-		           uuid: "",
-		           vec: nil,
-		           t: 0,
-		       },
-		       fields: fields {
-		           core: nil,
-		           eg: nil,
-		           kvs: nil,
-		           fmu: sync.Mutex{},
-		           fmap: nil,
-		           vq: nil,
-		           indexing: nil,
-		           saving: nil,
-		           cimu: sync.Mutex{},
-		           lastNocie: 0,
-		           nocie: 0,
-		           nogce: 0,
-		           inMem: false,
-		           dim: 0,
-		           alen: 0,
-		           lim: nil,
-		           dur: nil,
-		           sdur: nil,
-		           minLit: nil,
-		           maxLit: nil,
-		           litFactor: nil,
-		           enableProactiveGC: false,
-		           enableCopyOnWrite: false,
-		           path: "",
-		           smu: sync.Mutex{},
-		           tmpPath: nil,
-		           oldPath: "",
-		           basePath: "",
-		           cowmu: sync.Mutex{},
-		           backupGen: 0,
-		           poolSize: 0,
-		           radius: 0,
-		           epsilon: 0,
-		           idelay: nil,
-		           dcd: false,
-		           kvsdbConcurrency: 0,
-		       },
-		       want: want{},
-		       checkFunc: defaultCheckFunc,
-		   },
-		*/
-
-		// TODO test cases
-		/*
-		   func() test {
-		       return test {
-		           name: "test_case_2",
-		           args: args {
-		           uuid: "",
-		           vec: nil,
-		           t: 0,
-		           },
-		           fields: fields {
-		           core: nil,
-		           eg: nil,
-		           kvs: nil,
-		           fmu: sync.Mutex{},
-		           fmap: nil,
-		           vq: nil,
-		           indexing: nil,
-		           saving: nil,
-		           cimu: sync.Mutex{},
-		           lastNocie: 0,
-		           nocie: 0,
-		           nogce: 0,
-		           inMem: false,
-		           dim: 0,
-		           alen: 0,
-		           lim: nil,
-		           dur: nil,
-		           sdur: nil,
-		           minLit: nil,
-		           maxLit: nil,
-		           litFactor: nil,
-		           enableProactiveGC: false,
-		           enableCopyOnWrite: false,
-		           path: "",
-		           smu: sync.Mutex{},
-		           tmpPath: nil,
-		           oldPath: "",
-		           basePath: "",
-		           cowmu: sync.Mutex{},
-		           backupGen: 0,
-		           poolSize: 0,
-		           radius: 0,
-		           epsilon: 0,
-		           idelay: nil,
-		           dcd: false,
-		           kvsdbConcurrency: 0,
-		           },
-		           want: want{},
-		           checkFunc: defaultCheckFunc,
-		       }
-		   }(),
+			{
+				name: "test_case_1",
+				args: args{
+					uuid: "",
+					vec:  nil,
+					t:    0,
+				},
+				fields: fields{
+					cfg: defaultF32SvcCfg,
+				},
+				want:      want{},
+				checkFunc: defaultCheckFunc,
+			},
 		*/
 	}
 
@@ -2391,46 +2382,18 @@ func Test_ngt_InsertWithTime(t *testing.T) {
 			if test.checkFunc == nil {
 				checkFunc = defaultCheckFunc
 			}
-			n := &ngt{
-				core:              test.fields.core,
-				eg:                test.fields.eg,
-				kvs:               test.fields.kvs,
-				fmu:               test.fields.fmu,
-				fmap:              test.fields.fmap,
-				vq:                test.fields.vq,
-				indexing:          test.fields.indexing,
-				saving:            test.fields.saving,
-				cimu:              test.fields.cimu,
-				lastNocie:         test.fields.lastNocie,
-				nocie:             test.fields.nocie,
-				nogce:             test.fields.nogce,
-				inMem:             test.fields.inMem,
-				dim:               test.fields.dim,
-				alen:              test.fields.alen,
-				lim:               test.fields.lim,
-				dur:               test.fields.dur,
-				sdur:              test.fields.sdur,
-				minLit:            test.fields.minLit,
-				maxLit:            test.fields.maxLit,
-				litFactor:         test.fields.litFactor,
-				enableProactiveGC: test.fields.enableProactiveGC,
-				enableCopyOnWrite: test.fields.enableCopyOnWrite,
-				path:              test.fields.path,
-				smu:               test.fields.smu,
-				tmpPath:           test.fields.tmpPath,
-				oldPath:           test.fields.oldPath,
-				basePath:          test.fields.basePath,
-				cowmu:             test.fields.cowmu,
-				backupGen:         test.fields.backupGen,
-				poolSize:          test.fields.poolSize,
-				radius:            test.fields.radius,
-				epsilon:           test.fields.epsilon,
-				idelay:            test.fields.idelay,
-				dcd:               test.fields.dcd,
-				kvsdbConcurrency:  test.fields.kvsdbConcurrency,
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			eg, _ := errgroup.New(ctx)
+			n, err := New(test.fields.cfg, append(test.fields.opts,
+				WithErrGroup(eg))...)
+			if err != nil {
+				tt.Errorf("Cannot initialize ngt, err: %v", err)
 			}
 
-			err := n.InsertWithTime(test.args.uuid, test.args.vec, test.args.t)
+			err = n.InsertWithTime(test.args.uuid, test.args.vec, test.args.t)
 			if err := checkFunc(test.want, err); err != nil {
 				tt.Errorf("error = %v", err)
 			}
