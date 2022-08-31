@@ -43,9 +43,13 @@ func Test_vqueue_PushInsert_multiple(t *testing.T) {
 	uuid := "sameid"
 	vec := []float32{1, 2, 3}
 	var it int64 = 0 // insert time
+	var errCnt int32 = 0
 
 	for i := 0; i < insertCnt; i++ {
-		_ = v.PushInsert(uuid, vec, it) // since error will never return from PushInsert, I will not checking the error for now
+		err = v.PushInsert(uuid, vec, it) // since error will never return from PushInsert, I will not checking the error for now
+		if err != nil {
+			atomic.AddInt32(&errCnt, 1)
+		}
 	}
 
 	vq := v.(*vqueue)
@@ -57,13 +61,13 @@ func Test_vqueue_PushInsert_multiple(t *testing.T) {
 		return true
 	})
 	if atomic.LoadInt32(&uiimLen) != 1 {
-		t.Error("err")
+		t.Error("unexpected uiim length")
 	}
 
 	// check uii length, if insert is success, the insert index will be inserted into uii.
 	// since all insert should be success, we expected the length should be = insert count.
-	if len(vq.uii) != insertCnt {
-		t.Errorf("uii length err, %v", len(vq.uii))
+	if len(vq.uii)+int(errCnt) != insertCnt {
+		t.Error("unexpected uiim length")
 	}
 }
 
@@ -85,11 +89,15 @@ func Test_vqueue_PushInsert_parallel(t *testing.T) {
 	start := make(chan struct{}) // control the execution of insert goroutines
 	wg := &sync.WaitGroup{}
 	wg.Add(insertCnt)
+	var errCnt int32 = 0
 	for i := 0; i < insertCnt; i++ {
 		go func() {
 			<-start // wait for start channel is closed to start this goroutine at the same time (as close as it can)
 			defer wg.Done()
-			_ = v.PushInsert(uuid, vec, it) // since error will never return from PushInsert, I will not checking the error for now
+			err := v.PushInsert(uuid, vec, it)
+			if err != nil {
+				atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+			}
 		}()
 	}
 	close(start) // start the insert goroutines at the same time (as close as it can)
@@ -104,14 +112,120 @@ func Test_vqueue_PushInsert_parallel(t *testing.T) {
 		return true
 	})
 	if atomic.LoadInt32(&uiimLen) != 1 {
-		t.Error("err")
+		t.Error("unexpected uiim length")
 	}
 
 	// * failed here
 	// check uii length, if insert is success, the insert index will be inserted into uii
 	// since all insert should be success, we expected the length should be = insert count.
-	if len(vq.uii) != insertCnt {
-		t.Errorf("uii length err, %v", len(vq.uii))
+	if len(vq.uii)+int(errCnt) != insertCnt {
+		t.Errorf("unexpected uii length %v, err cnt: %v", len(vq.uii), atomic.LoadInt32(&errCnt))
+	}
+}
+
+// This test simulate 2 PushInsert request with the second insert request has insert date larger than the first insert. (it += 1)
+// To validate if the insert is success, we check the length of uii is increase by 1. (len(vq.uii) != 2 in last uii checking)
+func Test_vqueue_PushInsert_insert_date_greater(t *testing.T) {
+	v, err := New()
+	if err != nil {
+		t.Error(err)
+	}
+
+	uuid := "sameid"
+	vec := []float32{1, 2, 3}
+	var it int64 = 10 // insert time
+
+	err = v.PushInsert(uuid, vec, it)
+	if err != nil {
+		// atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+	}
+
+	vq := v.(*vqueue)
+
+	// validate the first insert success
+	// valid the uiim map has one pending index and the size of uii is increased by 1
+	var uiimLen int32 = 0
+	vq.uiim.Range(func(key string, val index) bool {
+		atomic.AddInt32(&uiimLen, 1)
+		return true
+	})
+	if atomic.LoadInt32(&uiimLen) != 1 {
+		t.Error("unexpected uiim length")
+	}
+	if len(vq.uii) != 1 { // first insert success
+		t.Errorf("unexpected uii length %v", len(vq.uii))
+	}
+
+	it += 1 // second insert date is larger than the first insert
+	v.PushInsert(uuid, vec, it)
+
+	// validate the second insert success
+	uiimLen = 0
+	vq.uiim.Range(func(key string, val index) bool {
+		atomic.AddInt32(&uiimLen, 1)
+		return true
+	})
+	if atomic.LoadInt32(&uiimLen) != 1 {
+		t.Error("unexpected uiim length")
+	}
+	// since the second insert date is greater then first one, we expect the second insert success
+	// so the length of uii (success count) should be 2
+	if len(vq.uii) != 2 {
+		t.Errorf("unexpected uii length %v", len(vq.uii))
+	}
+}
+
+// This test almost same as above test `Test_vqueue_PushInsert_insert_date_greater`.
+// but the second insert date is less than the first insert request. (it -= 1)
+// The result of this test is a bit different with the above test,
+// as the second request will be failed, the length of uii should remain 1. (len(vq.uii) != 1)
+func Test_vqueue_PushInsert_insert_date_less(t *testing.T) {
+	v, err := New()
+	if err != nil {
+		t.Error(err)
+	}
+
+	uuid := "sameid"
+	vec := []float32{1, 2, 3}
+	var it int64 = 10 // insert time
+
+	err = v.PushInsert(uuid, vec, it)
+	if err != nil {
+		// atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+	}
+
+	vq := v.(*vqueue)
+
+	// validate the first insert success,
+	// valid the uiim map has one pending index and the size of uii is increased by 1
+	var uiimLen int32 = 0
+	vq.uiim.Range(func(key string, val index) bool {
+		atomic.AddInt32(&uiimLen, 1)
+		return true
+	})
+	if atomic.LoadInt32(&uiimLen) != 1 {
+		t.Error("unexpected uiim length")
+	}
+	if len(vq.uii) != 1 { // first insert success
+		t.Errorf("unexpected uii length %v", len(vq.uii))
+	}
+
+	it -= 1 // if second insert time is less than first insert
+	v.PushInsert(uuid, vec, it)
+
+	// validate the second insert fail
+	uiimLen = 0
+	vq.uiim.Range(func(key string, val index) bool {
+		atomic.AddInt32(&uiimLen, 1)
+		return true
+	})
+	if atomic.LoadInt32(&uiimLen) != 1 {
+		t.Error("unexpected uiim length")
+	}
+	// since the second insert date is less then first one, we expect the second insert fails
+	// so the length of uii (success count) should be remain 1
+	if len(vq.uii) != 1 {
+		t.Errorf("unexpected uii length %v", len(vq.uii))
 	}
 }
 
