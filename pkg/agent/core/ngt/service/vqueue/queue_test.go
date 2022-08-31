@@ -21,12 +21,99 @@ import (
 	"context"
 	"reflect"
 	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/vdaas/vald/internal/errgroup"
 	"github.com/vdaas/vald/internal/errors"
 	"github.com/vdaas/vald/internal/test/goleak"
 )
+
+// This test insert same ID/vector in non-parallel mode.
+// To validate if PushInsert is success, we check the internal status of vqueue.
+// We expected the all PushInsert should be success.
+// The result of this test is as expected.
+func Test_vqueue_PushInsert_multiple(t *testing.T) {
+	v, err := New()
+	if err != nil {
+		t.Error(err)
+	}
+
+	insertCnt := 20
+	uuid := "sameid"
+	vec := []float32{1, 2, 3}
+	var it int64 = 0 // insert time
+
+	for i := 0; i < insertCnt; i++ {
+		_ = v.PushInsert(uuid, vec, it) // since error will never return from PushInsert, I will not checking the error for now
+	}
+
+	vq := v.(*vqueue)
+
+	// check uiim length, since there are only 1 vector will be inserted, we expected the length should be 1
+	var uiimLen int32 = 0
+	vq.uiim.Range(func(key string, val index) bool {
+		atomic.AddInt32(&uiimLen, 1)
+		return true
+	})
+	if atomic.LoadInt32(&uiimLen) != 1 {
+		t.Error("err")
+	}
+
+	// check uii length, if insert is success, the insert index will be inserted into uii.
+	// since all insert should be success, we expected the length should be = insert count.
+	if len(vq.uii) != insertCnt {
+		t.Errorf("uii length err, %v", len(vq.uii))
+	}
+}
+
+// This test is similar with Test_vqueue_PushInsert_multiple, but insert in parallel mode.
+// The result of this test is non-expected.
+// Not all insert request is success, the length of uii is not equal to the insert count.
+// e.g. the error `uii length err, 10` will be returned
+func Test_vqueue_PushInsert_parallel(t *testing.T) {
+	v, err := New()
+	if err != nil {
+		t.Error(err)
+	}
+
+	insertCnt := 20
+	uuid := "sameid"
+	vec := []float32{1, 2, 3}
+	var it int64 = 0 // insert time
+
+	start := make(chan struct{}) // control the execution of insert goroutines
+	wg := &sync.WaitGroup{}
+	wg.Add(insertCnt)
+	for i := 0; i < insertCnt; i++ {
+		go func() {
+			<-start // wait for start channel is closed to start this goroutine at the same time (as close as it can)
+			defer wg.Done()
+			_ = v.PushInsert(uuid, vec, it) // since error will never return from PushInsert, I will not checking the error for now
+		}()
+	}
+	close(start) // start the insert goroutines at the same time (as close as it can)
+	wg.Wait()
+
+	vq := v.(*vqueue)
+
+	// check uiim length, since there are only 1 vector will be inserted, we expected the length should be 1
+	var uiimLen int32 = 0
+	vq.uiim.Range(func(key string, val index) bool {
+		atomic.AddInt32(&uiimLen, 1)
+		return true
+	})
+	if atomic.LoadInt32(&uiimLen) != 1 {
+		t.Error("err")
+	}
+
+	// * failed here
+	// check uii length, if insert is success, the insert index will be inserted into uii
+	// since all insert should be success, we expected the length should be = insert count.
+	if len(vq.uii) != insertCnt {
+		t.Errorf("uii length err, %v", len(vq.uii))
+	}
+}
 
 func TestNew(t *testing.T) {
 	type args struct {
