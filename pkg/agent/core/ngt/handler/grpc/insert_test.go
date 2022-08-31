@@ -66,11 +66,16 @@ func Test_server_Insert_multiple(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	cfg := &payload.Insert_Config{
+		// default is do strict exist check, uncomment below line to skip strict exist check
+		// SkipStrictExistCheck: true,
+	}
 	req := &payload.Insert_Request{
 		Vector: &payload.Object_Vector{
 			Id:     "sameid",
 			Vector: []float32{1, 2, 3},
 		},
+		Config: cfg,
 	}
 
 	s, err := New(WithNGT(ngt), WithErrGroup(eg))
@@ -125,11 +130,16 @@ func Test_server_Insert_parallel(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	cfg := &payload.Insert_Config{
+		// default is do strict exist check, uncomment below line to skip strict exist check
+		// SkipStrictExistCheck: true,
+	}
 	req := &payload.Insert_Request{
 		Vector: &payload.Object_Vector{
 			Id:     "sameid",
 			Vector: []float32{1, 2, 3},
 		},
+		Config: cfg,
 	}
 
 	s, err := New(WithNGT(ngt), WithErrGroup(eg))
@@ -2838,6 +2848,10 @@ func TestStreamInsert100sameRequest(t *testing.T) {
 		Id:     "sameid",
 		Vector: []float32{1, 2, 3},
 	}
+	cfg := &payload.Insert_Config{
+		// default is do strict exist check, uncomment below line to skip strict exist check
+		// SkipStrictExistCheck: true,
+	}
 	// mux := &sync.Mutex{}
 
 	// create stream mock for insert
@@ -2859,6 +2873,7 @@ func TestStreamInsert100sameRequest(t *testing.T) {
 
 				obj := i.(*payload.Insert_Request)
 				obj.Vector = vec // stream interface always receive the same vector
+				obj.Config = cfg
 
 				recvIdx++
 				return nil
