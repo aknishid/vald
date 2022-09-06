@@ -123,7 +123,7 @@ func Test_vqueue_PushInsert_parallel(t *testing.T) {
 	}
 }
 
-// This test simulate 2 PushInsert request with the second insert request has insert date larger than the first insert. (it += 1)
+// This test simulate 2 PushInsert request in non-parallel mode with the second insert request has insert date larger than the first insert. (it += 1)
 // To validate if the insert is success, we check the length of uii is increase by 1. (len(vq.uii) != 2 in last uii checking)
 func Test_vqueue_PushInsert_insert_date_greater(t *testing.T) {
 	v, err := New()
@@ -135,9 +135,10 @@ func Test_vqueue_PushInsert_insert_date_greater(t *testing.T) {
 	vec := []float32{1, 2, 3}
 	var it int64 = 10 // insert time
 
+	var errCnt int32 = 0
 	err = v.PushInsert(uuid, vec, it)
 	if err != nil {
-		// atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+		atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
 	}
 
 	vq := v.(*vqueue)
@@ -157,7 +158,10 @@ func Test_vqueue_PushInsert_insert_date_greater(t *testing.T) {
 	}
 
 	it += 1 // second insert date is larger than the first insert
-	v.PushInsert(uuid, vec, it)
+	err = v.PushInsert(uuid, vec, it)
+	if err != nil {
+		atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+	}
 
 	// validate the second insert success
 	uiimLen = 0
@@ -172,6 +176,10 @@ func Test_vqueue_PushInsert_insert_date_greater(t *testing.T) {
 	// so the length of uii (success count) should be 2
 	if len(vq.uii) != 2 {
 		t.Errorf("unexpected uii length %v", len(vq.uii))
+	}
+	// we expect no error return from PushInsert
+	if errCnt > 0 {
+		t.Errorf("unexpected errCnt: %v", errCnt)
 	}
 }
 
@@ -189,9 +197,10 @@ func Test_vqueue_PushInsert_insert_date_less(t *testing.T) {
 	vec := []float32{1, 2, 3}
 	var it int64 = 10 // insert time
 
+	var errCnt int32 = 0
 	err = v.PushInsert(uuid, vec, it)
 	if err != nil {
-		// atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+		atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
 	}
 
 	vq := v.(*vqueue)
@@ -211,7 +220,10 @@ func Test_vqueue_PushInsert_insert_date_less(t *testing.T) {
 	}
 
 	it -= 1 // if second insert time is less than first insert
-	v.PushInsert(uuid, vec, it)
+	err = v.PushInsert(uuid, vec, it)
+	if err != nil {
+		atomic.AddInt32(&errCnt, 1) // count the error from PushInsert
+	}
 
 	// validate the second insert fail
 	uiimLen = 0
@@ -226,6 +238,10 @@ func Test_vqueue_PushInsert_insert_date_less(t *testing.T) {
 	// so the length of uii (success count) should be remain 1
 	if len(vq.uii) != 1 {
 		t.Errorf("unexpected uii length %v", len(vq.uii))
+	}
+	// we expect 1 error return from PushInsert
+	if errCnt != 1 {
+		t.Errorf("unexpected errCnt: %v", errCnt)
 	}
 }
 
