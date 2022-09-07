@@ -190,7 +190,7 @@ data:
       jaeger:
         enabled: false
         collector_endpoint: ""
-        agent_endpoint: "jaeger-agent.default.svc.cluster.local:6831"
+        agent_endpoint: ""
         username: ""
         password: ""
         service_name: "vald-discoverer"
@@ -225,6 +225,7 @@ data:
           cache_enabled: true
           cache_expiration: 24h
           refresh_duration: 5m
+        network: tcp
         socket_option:
           ip_recover_destination_addr: false
           ip_transparent: false
