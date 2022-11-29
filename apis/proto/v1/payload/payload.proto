@@ -20,6 +20,7 @@ package payload.v1;
 
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "github.com/googleapis/googleapis/google/rpc/status.proto";
+import "github.com/planetscale/vtprotobuf/include/github.com/planetscale/vtprotobuf/vtproto/ext.proto";
 
 option go_package = "github.com/vdaas/vald/apis/grpc/v1/payload";
 option java_multiple_files = true;
@@ -28,9 +29,10 @@ option java_outer_classname = "ValdPayload";
 
 // Search related messages.
 message Search {
-
+  option (vtproto.mempool) = true;
   // Represent a search request.
   message Request {
+    option (vtproto.mempool) = true;
     // The vector to be searched.
     repeated float vector = 1 [ (validate.rules).repeated .min_items = 2 ];
     // The configuration of the search request.
@@ -39,12 +41,14 @@ message Search {
 
   // Represent the multiple search request.
   message MultiRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple search request content.
-    repeated Request requests = 1; 
+    repeated Request requests = 1;
   }
 
   // Represent a search by ID request.
   message IDRequest {
+    option (vtproto.mempool) = true;
     // The vector ID to be searched.
     string id = 1;
     // The configuration of the search request.
@@ -52,13 +56,15 @@ message Search {
   }
 
   // Represent the multiple search by ID request.
-  message MultiIDRequest { 
+  message MultiIDRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple search by ID request content.
-    repeated IDRequest requests = 1; 
+    repeated IDRequest requests = 1;
   }
 
   // Represent a search by binary object request.
   message ObjectRequest {
+    option (vtproto.mempool) = true;
     // The binary object to be searched.
     bytes object = 1;
     // The configuration of the search request.
@@ -68,13 +74,15 @@ message Search {
   }
 
   // Represent the multiple search by binary object request.
-  message MultiObjectRequest { 
+  message MultiObjectRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple search by binary object request content.
-    repeated ObjectRequest requests = 1; 
+    repeated ObjectRequest requests = 1;
   }
 
   // Represent search configuration.
   message Config {
+    option (vtproto.mempool) = true;
     // Unique request ID.
     string request_id = 1;
     // Maximum number of result to be returned.
@@ -95,6 +103,7 @@ message Search {
 
   // Represent a search response.
   message Response {
+    option (vtproto.mempool) = true;
     // The unique request ID.
     string request_id = 1;
     // Search results.
@@ -102,13 +111,15 @@ message Search {
   }
 
   // Represent multiple search responses.
-  message Responses { 
+  message Responses {
+    option (vtproto.mempool) = true;
     // Represent the multiple search response content.
-    repeated Response responses = 1; 
+    repeated Response responses = 1;
   }
 
   // Represent stream search response.
   message StreamResponse {
+    option (vtproto.mempool) = true;
     oneof payload {
       // Represent the search response.
       Response response = 1;
@@ -120,9 +131,11 @@ message Search {
 
 // Filter related messages.
 message Filter {
+  option (vtproto.mempool) = true;
 
   // Represent the target filter server.
   message Target {
+    option (vtproto.mempool) = true;
     // The target hostname.
     string host = 1;
     // The target port.
@@ -130,17 +143,19 @@ message Filter {
   }
 
   // Represent filter configuration.
-  message Config { 
+  message Config {
+    option (vtproto.mempool) = true;
     // Represent the filter target configuration.
-    repeated Target targets = 1; 
+    repeated Target targets = 1;
   }
 }
 
 // Insert related messages.
 message Insert {
-
+  option (vtproto.mempool) = true;
   // Represent the insert request.
   message Request {
+    option (vtproto.mempool) = true;
     // The vector to be inserted.
     Object.Vector vector = 1 [ (validate.rules).repeated .min_items = 2 ];
     // The configuration of the insert request.
@@ -149,12 +164,14 @@ message Insert {
 
   // Represent the multiple insert request.
   message MultiRequest {
+    option (vtproto.mempool) = true;
     // Represent multiple insert request content.
     repeated Request requests = 1;
   }
 
   // Represent the insert by binary object request.
   message ObjectRequest {
+    option (vtproto.mempool) = true;
     // The binary object to be inserted.
     Object.Blob object = 1;
     // The configuration of the insert request.
@@ -165,12 +182,14 @@ message Insert {
 
   // Represent the multiple insert by binary object request.
   message MultiObjectRequest {
+    option (vtproto.mempool) = true;
     // Represent multiple insert by object content.
     repeated ObjectRequest requests = 1;
   }
 
   // Represent insert configurations.
   message Config {
+    option (vtproto.mempool) = true;
     // A flag to skip exist check during insert operation.
     bool skip_strict_exist_check = 1;
     // Filter configurations.
@@ -182,9 +201,10 @@ message Insert {
 
 // Update related messages
 message Update {
-
+  option (vtproto.mempool) = true;
   // Represent the update request.
   message Request {
+    option (vtproto.mempool) = true;
     // The vector to be updated.
     Object.Vector vector = 1 [ (validate.rules).repeated .min_items = 2 ];
     // The configuration of the update request.
@@ -193,12 +213,14 @@ message Update {
 
   // Represent the multiple update request.
   message MultiRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple update request content.
     repeated Request requests = 1;
   }
 
   // Represent the update binary object request.
   message ObjectRequest {
+    option (vtproto.mempool) = true;
     // The binary object to be updated.
     Object.Blob object = 1;
     // The configuration of the update request.
@@ -209,12 +231,14 @@ message Update {
 
   // Represent the multiple update binary object request.
   message MultiObjectRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple update object request content.
     repeated ObjectRequest requests = 1;
   }
 
   // Represent the update configuration.
   message Config {
+    option (vtproto.mempool) = true;
     // A flag to skip exist check during update operation.
     bool skip_strict_exist_check = 1;
     // Filter configuration.
@@ -226,9 +250,11 @@ message Update {
 
 // Upsert related messages.
 message Upsert {
+  option (vtproto.mempool) = true;
 
   // Represent the upsert request.
   message Request {
+    option (vtproto.mempool) = true;
     // The vector to be upserted.
     Object.Vector vector = 1 [ (validate.rules).repeated .min_items = 2 ];
     // The configuration of the upsert request.
@@ -237,12 +263,14 @@ message Upsert {
 
   // Represent mthe ultiple upsert request.
   message MultiRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple upsert request content.
     repeated Request requests = 1;
   }
 
   // Represent the upsert binary object request.
   message ObjectRequest {
+    option (vtproto.mempool) = true;
     // The binary object to be upserted.
     Object.Blob object = 1;
     // The configuration of the upsert request.
@@ -253,12 +281,14 @@ message Upsert {
 
   // Represent the multiple upsert binary object request.
   message MultiObjectRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple upsert object request content.
     repeated ObjectRequest requests = 1;
   }
 
   // Represent the upsert configuration.
   message Config {
+    option (vtproto.mempool) = true;
     // A flag to skip exist check during upsert operation.
     bool skip_strict_exist_check = 1;
     // Filter configuration.
@@ -270,9 +300,11 @@ message Upsert {
 
 // Remove related messages.
 message Remove {
+  option (vtproto.mempool) = true;
 
   // Represent the remove request.
   message Request {
+    option (vtproto.mempool) = true;
     // The object ID to be removed.
     Object.ID id = 1;
     // The configuration of the remove request.
@@ -281,12 +313,14 @@ message Remove {
 
   // Represent the multiple remove request.
   message MultiRequest {
+    option (vtproto.mempool) = true;
     // Represent the multiple remove request content.
     repeated Request requests = 1;
   }
 
   // Represent the remove configuration.
   message Config {
+    option (vtproto.mempool) = true;
     // A flag to skip exist check during upsert operation.
     bool skip_strict_exist_check = 1;
     // Remove timestamp.
@@ -296,9 +330,11 @@ message Remove {
 
 // Common messages.
 message Object {
+  option (vtproto.mempool) = true;
 
   // Represent a request to fetch raw vector.
   message VectorRequest {
+    option (vtproto.mempool) = true;
     // The vector ID to be fetch.
     ID id = 1 [ (validate.rules).repeated .min_items = 2 ];
     // Filter configurations.
@@ -307,6 +343,7 @@ message Object {
 
   // Represent the ID and distance pair.
   message Distance {
+    option (vtproto.mempool) = true;
     // The vector ID.
     string id = 1;
     // The distance.
@@ -315,6 +352,7 @@ message Object {
 
   // Represent stream response of distances.
   message StreamDistance {
+    option (vtproto.mempool) = true;
     oneof payload {
       // The distance.
       Distance distance = 1;
@@ -324,13 +362,20 @@ message Object {
   }
 
   // Represent the vector ID.
-  message ID { string id = 1 [ (validate.rules).string.min_len = 1 ]; }
+  message ID {
+    option (vtproto.mempool) = true;
+    string id = 1 [ (validate.rules).string.min_len = 1 ];
+  }
 
   // Represent multiple vector IDs.
-  message IDs { repeated string ids = 1; }
+  message IDs {
+    option (vtproto.mempool) = true;
+    repeated string ids = 1;
+  }
 
   // Represent a vector.
   message Vector {
+    option (vtproto.mempool) = true;
     // The vector ID.
     string id = 1 [ (validate.rules).string.min_len = 1 ];
     // The vector.
@@ -338,10 +383,14 @@ message Object {
   }
 
   // Represent multiple vectors.
-  message Vectors { repeated Vector vectors = 1; }
+  message Vectors {
+    option (vtproto.mempool) = true;
+    repeated Vector vectors = 1;
+  }
 
   // Represent stream response of the vector.
   message StreamVector {
+    option (vtproto.mempool) = true;
     oneof payload {
       // The vector.
       Vector vector = 1;
@@ -352,6 +401,7 @@ message Object {
 
   // Represent reshape vector.
   message ReshapeVector {
+    option (vtproto.mempool) = true;
     // The binary object.
     bytes object = 1;
     // The new shape.
@@ -360,6 +410,7 @@ message Object {
 
   // Represent the binary object.
   message Blob {
+    option (vtproto.mempool) = true;
     // The object ID.
     string id = 1 [ (validate.rules).string.min_len = 1 ];
     // The binary object.
@@ -368,6 +419,7 @@ message Object {
 
   // Represent stream response of binary objects.
   message StreamBlob {
+    option (vtproto.mempool) = true;
     oneof payload {
       // The binary object.
       Blob blob = 1;
@@ -378,6 +430,7 @@ message Object {
 
   // Represent the vector location.
   message Location {
+    option (vtproto.mempool) = true;
     // The name of the location.
     string name = 1;
     // The UUID of the vector.
@@ -388,6 +441,7 @@ message Object {
 
   // Represent the stream response of the vector location.
   message StreamLocation {
+    option (vtproto.mempool) = true;
     oneof payload {
       // The vector location.
       Location location = 1;
@@ -397,13 +451,18 @@ message Object {
   }
 
   // Represent multiple vector locations.
-  message Locations { repeated Location locations = 1; }
+  message Locations {
+    option (vtproto.mempool) = true;
+    repeated Location locations = 1;
+    }
 }
 
 // Control related messages.
 message Control {
+  option (vtproto.mempool) = true;
   // Represent the create index request.
   message CreateIndexRequest {
+    option (vtproto.mempool) = true;
     // The pool size of the create index operation.
     uint32 pool_size = 1 [ (validate.rules).uint32.gte = 0 ];
   }
@@ -411,9 +470,11 @@ message Control {
 
 // Discoverer related messages.
 message Discoverer {
+  option (vtproto.mempool) = true;
 
   // Represent the dicoverer request.
   message Request {
+    option (vtproto.mempool) = true;
     // The agent name to be discover.
     string name = 1 [ (validate.rules).string.min_len = 1 ];
     // The namespace to be discover.
@@ -425,12 +486,14 @@ message Discoverer {
 
 // Info related messages.
 message Info {
+  option (vtproto.mempool) = true;
 
   // Represent the index information messages.
   message Index {
-
+    option (vtproto.mempool) = true;
     // Represent the index count message.
     message Count {
+      option (vtproto.mempool) = true;
       // The stored index count.
       uint32 stored = 1;
       // The uncommitted index count.
@@ -443,6 +506,7 @@ message Info {
 
     // Represent the UUID message.
     message UUID {
+      option (vtproto.mempool) = true;
       // The committed UUID.
       message Committed { string uuid = 1; }
       // The uncommitted UUID.
@@ -452,6 +516,7 @@ message Info {
 
   // Represent the pod information message.
   message Pod {
+    option (vtproto.mempool) = true;
     // The app name of the pod on the label.
     string app_name = 1;
     // The name of the pod.
@@ -470,6 +535,7 @@ message Info {
 
   // Represent the node information message.
   message Node {
+    option (vtproto.mempool) = true;
     // The name of the node.
     string name = 1;
     // The internal IP address of the node.
@@ -486,6 +552,7 @@ message Info {
 
   // Represent the CPU information message.
   message CPU {
+    option (vtproto.mempool) = true;
     // The CPU resource limit.
     double limit = 1;
     // The CPU resource requested.
@@ -496,6 +563,7 @@ message Info {
 
   // Represent the memory information message.
   message Memory {
+    option (vtproto.mempool) = true;
     // The memory limit.
     double limit = 1;
     // The memory requested.
@@ -506,18 +574,23 @@ message Info {
 
   // Represent the multiple pod information message.
   message Pods {
+    option (vtproto.mempool) = true;
     // The multiple pod information.
     repeated Pod pods = 1 [ (validate.rules).repeated .min_items = 1 ];
   }
 
   // Represent the multiple node information message.
   message Nodes {
+    option (vtproto.mempool) = true;
     // The multiple node information.
     repeated Node nodes = 1 [ (validate.rules).repeated .min_items = 1 ];
   }
 
   // Represent the multiple IP message.
-  message IPs { repeated string ip = 1; }
+  message IPs {
+    option (vtproto.mempool) = true;
+    repeated string ip = 1;
+  }
 }
 
 // Represent an empty message.
