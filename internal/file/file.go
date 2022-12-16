@@ -501,7 +501,7 @@ func DeleteDir(ctx context.Context, path string) (err error) {
 			return err
 		}
 		eg.Go(safety.RecoverFunc(func() (err error) {
-			_, err = os.Delete(childPath)
+			_, err = os.Remove(childPath)
 			return err
 		}))
 		return nil
