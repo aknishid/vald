@@ -38,8 +38,9 @@ func (s *server) Flush(ctx context.Context, req *payload.Flush_Request) (*payloa
 	err := s.ngt.RegenerateIndex(ctx)
 	if err != nil {
 		var attrs []attribute.KeyValue
-		if errors.Is(err, errors.ErrFlushingIsInProgress()) {
-			err = status.WrapWithAborted("Flush API aborted to process search request due to flushing indices is in progress", err,
+		switch {
+		case errors.Is(err, errors.ErrFlushingIsInProgress):
+			err = status.WrapWithAborted("Flush API aborted to process flush request due to flushing indices is in progress", err,
 				&errdetails.RequestInfo{
 					ServingData: errdetails.Serialize(req),
 				},
@@ -49,7 +50,18 @@ func (s *server) Flush(ctx context.Context, req *payload.Flush_Request) (*payloa
 				})
 			log.Debug(err)
 			attrs = trace.StatusCodeAborted(err.Error())
-		} else {
+		case errors.Is(err, errors.ErrFlushIsFailedDeleteFile):
+			err = status.WrapWithInternal("Flush API failed. NGT agent is possibility of restoring an incomplete index", err,
+				&errdetails.RequestInfo{
+					ServingData: errdetails.Serialize(req),
+				},
+				&errdetails.ResourceInfo{
+					ResourceType: ngtResourceType + "/ngt.Flush",
+					ResourceName: fmt.Sprintf("%s: %s(%s)", apiName, s.name, s.ip),
+				})
+			log.Debug(err)
+			attrs = trace.StatusCodeInternal(err.Error())
+		default:
 			err = status.WrapWithInternal("Flush API failed", err,
 				&errdetails.RequestInfo{
 					ServingData: errdetails.Serialize(req),

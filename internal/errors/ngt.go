@@ -24,6 +24,9 @@ var (
 	// ErrFlushingIsInProgress represents an error that the flushing is in progress but any request received
 	ErrFlushingIsInProgress = New("flush is in progress")
 
+	// ErrFlushIsFailedDeleteFile represents an error that failed to delete backup file during index data flush
+	ErrFlushIsFailedDeleteFile = New("flush failed due to failure to delete backup file")
+
 	// ErrCreateProperty represents a function to generate an error that the property creation failed.
 	ErrCreateProperty = func(err error) error {
 		return Wrap(err, "failed to create property")

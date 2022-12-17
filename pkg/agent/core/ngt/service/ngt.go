@@ -926,16 +926,18 @@ func (n *ngt) RegenerateIndex(ctx context.Context) (err error) {
 	// delete file
 	err = file.DeleteDir(ctx, n.path)
 	if err != nil {
-		// ここはエラーにすべき？
-		log.Errorf("failed to flushing vector to ngt index in delete file. error: %v", err)
+		log.Errorf("failed to remove backup data %s during flush. error: %v", n.path, err)
+		return errors.ErrFlushIsFailedDeleteFile
 	}
 
 	// delete cow
 	if n.enableCopyOnWrite {
-		err := file.DeleteDir(ctx, n.oldPath)
+		n.cowmu.Lock()
+		defer n.cowmu.Unlock()
+		err = file.DeleteDir(ctx, n.oldPath)
 		if err != nil {
-			// ここはエラーにすべき？
-			log.Errorf("failed to flushing vector to ngt index in delete file. error: %v", err)
+			log.Errorf("failed to remove secondary backup data %v during flush. error: %v", n.path, err)
+			return errors.ErrFlushIsFailedDeleteFile
 		}
 	}
 
